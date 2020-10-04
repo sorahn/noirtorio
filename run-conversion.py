@@ -204,48 +204,29 @@ def render_image(path, brightness, saturation):
 def main():
     start = time.perf_counter()
 
-    # shutil.rmtree("graphics", ignore_errors=True)
     processor = ProcessPoolExecutor(NUM_PROCESSES)
 
     for filename in generate_filenames(CORE, CORE_EXCLUDE):
-        if not filename:
-            raise Exception()
-
         processor.submit(render_image, filename, 0.7, 0.1)
 
     # Misc STuff
     for filename in generate_filenames(MISC_STUFF):
-        if not filename:
-            raise Exception()
-
         processor.submit(render_image, filename, 0.6, 0.05)
 
     # Base Entities
     for filename in generate_filenames(BASE_ENTITIES, ENTITY_EXCLUDE):
-        if not filename:
-            raise Exception()
-
         processor.submit(render_image, filename, 0.7, 0.05)
 
     # Entites that need more color
     for filename in generate_filenames(BRIGHT_ENTITIES, ENTITY_EXCLUDE):
-        if not filename:
-            raise Exception()
-
         processor.submit(render_image, filename, 0.7, 0.10)
 
     # Terrain
     for filename in generate_filenames(TERRAIN, TERRAIN_EXCLUDE):
-        if not filename:
-            raise Exception()
-
         processor.submit(render_image, filename, 1, 0.4)
 
     # Ore
     for filename in generate_filenames(ORE, ORE_EXCLUDE):
-        if not filename:
-            raise Exception()
-
         processor.submit(render_image, filename, 0.7, 0.2)
 
     processor.shutdown()
