@@ -5,6 +5,7 @@ from pathlib import Path
 from multiprocessing import Pool, JoinableQueue
 import os
 import shutil
+import time
 
 ORIGINAL_GRAPHICS_PATH = "originals/"
 
@@ -236,6 +237,8 @@ def render_image(args):
 
 
 def main():
+    start = time.perf_counter()
+
     # shutil.rmtree("graphics", ignore_errors=True)
     processor = MultiProcessor(render_image)
 
@@ -281,6 +284,7 @@ def main():
         processor.submit_task((filename, 0.7, 0.2))
 
     processor.join()
+    print(f"Done in {time.perf_counter() - start:.1f}s")
 
 
 if __name__ == "__main__":
