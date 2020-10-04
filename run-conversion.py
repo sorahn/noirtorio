@@ -201,26 +201,11 @@ class MultiProcessor:
             queue.task_done()
 
 
-def test_image(args):
-    path, brightness, alpha = args
-    if "base" in str(path):
-        replace = str(path).replace("originals/base/graphics", "__base__/graphics")
-
-    if "core" in str(path):
-        replace = str(path).replace("originals/core/graphics", "__core__/graphics")
-
-    print(path, "->", replace)
-
-
 def render_image(args):
     path, brightness, alpha = args
 
     path, brightness, alpha = args
-    if "base" in str(path):
-        replace = str(path).replace("originals/base/graphics", "__base__/graphics")
-
-    if "core" in str(path):
-        replace = str(path).replace("originals/core/graphics", "__core__/graphics")
+    replace = str(path).replace("originals", "data")
 
     os.makedirs(Path(replace).parent, exist_ok=True)
 
