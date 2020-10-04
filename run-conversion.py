@@ -8,7 +8,7 @@ import shutil
 
 ORIGINAL_GRAPHICS_PATH = "originals/"
 
-NUM_PROCESSES = 12
+NUM_PROCESSES = os.cpu_count()
 
 MISC_STUFF = [
     "base/graphics/item-group",
