@@ -6,6 +6,8 @@ from multiprocessing import Pool, JoinableQueue
 import os
 import shutil
 
+ORIGINAL_GRAPHICS_PATH = "originals/"
+
 NUM_PROCESSES = 12
 
 MISC_STUFF = [
@@ -143,10 +145,17 @@ ORE = [
 
 ORE_EXCLUDE = ["glow"]
 
+CORE = ["core/graphics"]
+
+CORE_EXCLUDE = [
+    "green-wire",
+    "red-wire",
+]
+
 
 def generate_filenames(dirs, exclude=[]):
     for dir in dirs:
-        for path in Path().rglob(dir + "/**/*.png"):
+        for path in Path().rglob(ORIGINAL_GRAPHICS_PATH + dir + "/**/*.png"):
             if should_exclude(path, exclude):
                 continue
             yield path
@@ -192,10 +201,27 @@ class MultiProcessor:
             queue.task_done()
 
 
+def test_image(args):
+    path, brightness, alpha = args
+    if "base" in str(path):
+        replace = str(path).replace("originals/base/graphics", "__base__/graphics")
+
+    if "core" in str(path):
+        replace = str(path).replace("originals/core/graphics", "__core__/graphics")
+
+    print(path, "->", replace)
+
+
 def render_image(args):
     path, brightness, alpha = args
 
-    replace = str(path).replace("base/graphics", "graphics")
+    path, brightness, alpha = args
+    if "base" in str(path):
+        replace = str(path).replace("originals/base/graphics", "__base__/graphics")
+
+    if "core" in str(path):
+        replace = str(path).replace("originals/core/graphics", "__core__/graphics")
+
     os.makedirs(Path(replace).parent, exist_ok=True)
 
     img_orig = Image.open(path).convert("RGBA")
@@ -219,6 +245,12 @@ def render_image(args):
 def main():
     # shutil.rmtree("graphics", ignore_errors=True)
     processor = MultiProcessor(render_image)
+
+    for filename in list(generate_filenames(CORE, CORE_EXCLUDE)):
+        if not filename:
+            raise Exception()
+
+        processor.submit_task((filename, 0.7, 0.1))
 
     # Misc STuff
     for filename in list(generate_filenames(MISC_STUFF)):
