@@ -2,13 +2,14 @@
 
 from PIL import Image, ImageEnhance
 from pathlib import Path
-from multiprocessing import Pool, JoinableQueue
+from concurrent.futures import FIRST_EXCEPTION, ProcessPoolExecutor, wait
 import os
 import shutil
+import time
 
-ORIGINAL_GRAPHICS_PATH = "originals/"
+ORIGINAL_GRAPHICS_PATH = Path("originals")
 
-NUM_PROCESSES = 12
+NUM_PROCESSES = os.cpu_count()
 
 MISC_STUFF = [
     "base/graphics/item-group",
@@ -162,7 +163,7 @@ CORE_EXCLUDE = [
 
 def generate_filenames(dirs, exclude=[]):
     for dir in dirs:
-        for path in Path().rglob(ORIGINAL_GRAPHICS_PATH + dir + "/**/*.png"):
+        for path in Path().glob(str(ORIGINAL_GRAPHICS_PATH / dir / "**" / "*.png")):
             if should_exclude(path, exclude):
                 continue
             yield path
@@ -175,45 +176,10 @@ def should_exclude(path, exclude):
     return False
 
 
-class MultiProcessor:
+def render_image(path, brightness, saturation):
+    replace = Path("data", *path.parts[1:])
 
-    queue = None
-    pool = None
-
-    def __init__(self, target):
-        self.queue = JoinableQueue()
-        self.pool = Pool(NUM_PROCESSES, self._worker, (self.queue, target))
-
-    def join(self):
-        # Add NUM_PROCESSES Nones to the queue to indicate to workers they
-        # should exit
-        for _ in range(NUM_PROCESSES):
-            self.queue.put(None)
-
-        self.queue.join()
-
-    def submit_task(self, task):
-        self.queue.put(task)
-
-    @staticmethod
-    def _worker(queue, target):
-
-        while True:
-            args = queue.get()
-            if not args:
-                queue.task_done()
-                break
-
-            target(args)
-            queue.task_done()
-
-
-def render_image(args):
-    path, brightness, saturation = args
-
-    replace = str(path).replace("originals", "data")
-
-    os.makedirs(Path(replace).parent, exist_ok=True)
+    os.makedirs(replace.parent, exist_ok=True)
 
     img_orig = Image.open(path).convert("RGBA")
 
@@ -236,51 +202,53 @@ def render_image(args):
 
 
 def main():
-    # shutil.rmtree("graphics", ignore_errors=True)
-    processor = MultiProcessor(render_image)
+    start = time.perf_counter()
 
-    for filename in list(generate_filenames(CORE, CORE_EXCLUDE)):
-        if not filename:
-            raise Exception()
+    processor = ProcessPoolExecutor(NUM_PROCESSES)
+    futures = []
 
-        processor.submit_task((filename, 0.7, 0.1))
+    def render(*args):
+        futures.append(processor.submit(render_image, *args))
+
+    for filename in generate_filenames(CORE, CORE_EXCLUDE):
+        render(filename, 0.7, 0.1)
 
     # Misc STuff
-    for filename in list(generate_filenames(MISC_STUFF)):
-        if not filename:
-            raise Exception()
-
-        processor.submit_task((filename, 0.6, 0.05))
+    for filename in generate_filenames(MISC_STUFF):
+        render(filename, 0.6, 0.05)
 
     # Base Entities
-    for filename in list(generate_filenames(BASE_ENTITIES, ENTITY_EXCLUDE)):
-        if not filename:
-            raise Exception()
-
-        processor.submit_task((filename, 0.7, 0.05))
+    for filename in generate_filenames(BASE_ENTITIES, ENTITY_EXCLUDE):
+        render(filename, 0.7, 0.05)
 
     # Entites that need more color
-    for filename in list(generate_filenames(BRIGHT_ENTITIES, ENTITY_EXCLUDE)):
-        if not filename:
-            raise Exception()
-
-        processor.submit_task((filename, 0.7, 0.10))
+    for filename in generate_filenames(BRIGHT_ENTITIES, ENTITY_EXCLUDE):
+        render(filename, 0.7, 0.10)
 
     # Terrain
-    for filename in list(generate_filenames(TERRAIN, TERRAIN_EXCLUDE)):
-        if not filename:
-            raise Exception()
-
-        processor.submit_task((filename, 1, 0.4))
+    for filename in generate_filenames(TERRAIN, TERRAIN_EXCLUDE):
+        render(filename, 1, 0.4)
 
     # Ore
-    for filename in list(generate_filenames(ORE, ORE_EXCLUDE)):
-        if not filename:
-            raise Exception()
+    for filename in generate_filenames(ORE, ORE_EXCLUDE):
+        render(filename, 0.7, 0.2)
 
-        processor.submit_task((filename, 0.7, 0.2))
+    # Wait for the all tasks to complete or the first one to raise an exception
+    result = wait(futures, return_when=FIRST_EXCEPTION)
 
-    processor.join()
+    # Cancel pending tasks after one failed with an exception
+    for pending in result.not_done:
+        pending.cancel()
+
+    # Wait for processor to complete all pending tasks that could not be canceled.
+    processor.shutdown()
+
+    # Retrieve result for all tasks, this will re-raise the exception if the
+    # task failed and cause it to be printed to the console
+    for done in result.done:
+        done.result()
+
+    print(f"Done in {time.perf_counter() - start:.1f}s")
 
 
 if __name__ == "__main__":
