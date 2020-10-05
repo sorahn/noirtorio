@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from PIL import Image, ImageEnhance
-from pathlib import Path
-from concurrent.futures import FIRST_EXCEPTION, ProcessPoolExecutor, wait
 import os
 import shutil
 import time
+from concurrent.futures import FIRST_EXCEPTION, ProcessPoolExecutor, wait
+from pathlib import Path
+
+from PIL import Image, ImageEnhance
 
 ORIGINAL_GRAPHICS_PATH = Path("originals")
 
@@ -34,22 +35,10 @@ def render_image(path, brightness, saturation):
 
     img_orig = Image.open(path).convert("RGBA")
 
-    img_alpha = img_orig.getchannel("A")
-    img_rgb = img_orig.convert("RGB")
+    # TODO: move to factorio_noir module once
+    from factorio_noir.render import apply_transforms
 
-    # fmt: off
-    # Numbers taken from factorio's shader. Keep in sync with data-final-fixes.lua
-    color_space = (
-        0.3086 + 0.6914 * saturation, 0.6094 - 0.6094 * saturation, 0.0820 - 0.0820 * saturation, 0,
-        0.3086 - 0.3086 * saturation, 0.6094 + 0.3906 * saturation, 0.0820 - 0.0820 * saturation, 0,
-        0.3086 - 0.3086 * saturation, 0.6094 - 0.6094 * saturation, 0.0820 + 0.9180 * saturation, 0,
-    )
-    # fmt: on
-
-    color_space = list(c * brightness for c in color_space)
-
-    img_converted = img_rgb.convert("RGB", color_space)
-    img_converted.putalpha(img_alpha)
+    img_converted = apply_transforms(img_orig)
 
     print(path, "->", replace)
     img_converted.save(replace)
