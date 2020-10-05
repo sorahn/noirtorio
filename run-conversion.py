@@ -20,8 +20,6 @@ MISC_STUFF = [
 
 BASE_ENTITIES = [
     "base/graphics/entity/accumulator",
-    "base/graphics/entity/artillery-turret",
-    "base/graphics/entity/artillery-wagon",
     "base/graphics/entity/beacon",
     "base/graphics/entity/big-electric-pole",
     "base/graphics/entity/boiler",
@@ -131,9 +129,18 @@ ENTITY_EXCLUDE = [
     "signal.png",
 ]
 
-TERRAIN = ["base/graphics/terrain"]
+TERRAIN = [
+    "base/graphics/terrain",
+    "base/graphics/entity/artillery-turret",
+    "base/graphics/entity/artillery-wagon",
+]
 
-TERRAIN_EXCLUDE = ["cliff", "hazard"]
+TERRAIN_EXCLUDE = [
+    "cliff",
+    "hazard",
+    # "artillery-turret-base",
+    # "artillery-wagon-base",
+]
 
 ORE = [
     "base/graphics/entity/copper-ore",
@@ -263,7 +270,7 @@ def main():
         if not filename:
             raise Exception()
 
-        processor.submit_task((filename, 0.4, 0.15))
+        processor.submit_task((filename, 1, 0.4))
 
     # Ore
     for filename in list(generate_filenames(ORE, ORE_EXCLUDE)):
