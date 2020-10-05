@@ -11,6 +11,8 @@ from click import Argument
 
 from factorio_noir.category import SpriteCategory
 
+VANILLA_MODS = {"core", "base"}
+
 
 @click.command()
 @click.option("--pack-version", default="0.0.1")
@@ -37,6 +39,27 @@ def cli(pack_dir, pack_version, factorio_data):
         f"Loaded {len(categories)} categories using a total of {len(used_mods)} mods.",
         fg="green",
     )
+
+    if VANILLA_MODS & used_mods:
+        if factorio_data is None:
+            click.secho(
+                "Missing --factorio-data value, required for editing vanilla graphics.",
+                fg="red",
+            )
+            raise click.Abort
+
+        factorio_data = Path(factorio_data)
+        if any(not (factorio_data / mod).exists() for mod in VANILLA_MODS):
+            click.secho(
+                f"{factorio_data} is not a valid factorio data directory.",
+                fg="red",
+            )
+            raise click.Abort
+
+    if VANILLA_MODS ^ used_mods:
+        raise NotImplementedError(
+            "Loading other mods than vanilla is not implemented yet."
+        )
 
 
 if __name__ == "__main__":
