@@ -1,7 +1,7 @@
 mod: base
 
 treatment:
-  brightness: 0.05
+  saturation: 0.05
 
 graphics:
   - entity/accumulator

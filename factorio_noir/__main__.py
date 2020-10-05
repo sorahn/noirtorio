@@ -20,7 +20,6 @@ FILES_TO_COPY_VERBATIM = {
     "info.json",
     "config.lua",
     "data-final-fixes.lua",
-    "background-image.jpg",
 }
 
 
@@ -50,10 +49,9 @@ def cli(pack_dir, pack_version, factorio_data):
         fg="green",
     )
 
-    if Path(pack_dir).name.lower() == "vanilla":
-        pack_name = f"Factorio-Noir"
-    else:
-        pack_name = f"Factorio-Noir-{Path(pack_dir).name}"
+    pack_name = "factorio-noir"
+    if Path(pack_dir).name.lower() != "vanilla":
+        pack_name += f"-{Path(pack_dir).name}"
 
     target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
     target_dir.mkdir(exist_ok=True, parents=True)
@@ -88,6 +86,11 @@ def cli(pack_dir, pack_version, factorio_data):
     for f in FILES_TO_COPY_VERBATIM:
         shutil.copy(MOD_ROOT / f, target_dir)
 
+    shutil.copy(
+        MOD_ROOT / "background-image.jpg",
+        target_dir / "data" / "core" / "graphics",
+    )
+
     click.echo("Patching the info.json file")
     with (target_dir / "info.json").open() as file:
         info_file = json.load(file)
@@ -101,7 +104,7 @@ def cli(pack_dir, pack_version, factorio_data):
 
     click.echo("Starting to process sprites")
     with sprite_processor(process_sprite) as submit:
-        with click.progressbar(categories) as progress:
+        with click.progressbar(categories, label="Spool sprite tasks") as progress:
             for category in progress:
                 for sprite_path in category.sprite_paths(target_dir):
                     submit(

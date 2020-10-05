@@ -12,8 +12,8 @@ SAFE_PARSER = YAML(typ="safe")
 class SpriteTreatment:
     """Describe the treatment to execute on a given sprite."""
 
-    saturation: float = attr.ib(converter=attr.converters.default_if_none(0.7))
-    brightness: float = attr.ib(converter=attr.converters.default_if_none(0.1))
+    saturation: float = attr.ib(converter=attr.converters.default_if_none(0.1))
+    brightness: float = attr.ib(converter=attr.converters.default_if_none(0.7))
 
     @classmethod
     def from_yaml(cls, yaml_fragment: Dict[str, float]):
@@ -48,7 +48,7 @@ class SpriteCategory:
 
     def sprite_paths(self, root_dir):
         """Yield all sprite paths matching this category."""
-        graphics_dir = root_dir / f"__{self.mod}__" / "graphics"
+        graphics_dir = root_dir / "data" / self.mod / "graphics"
         yield from (
             sprite_path
             # For each graphic directory we want recursively all png file

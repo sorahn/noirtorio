@@ -1,6 +1,6 @@
 mod: core
 
-graphics: ["*"]
+graphics: ["**"]
 
 excludes:
   - green-wire
