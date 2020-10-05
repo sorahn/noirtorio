@@ -91,18 +91,18 @@ end
 
 
 -- desaturate the map
-local function desaturate(c, sat, bri)
+local function desaturate(c, bri, sat)
 	-- colors can be either named, on indexed. They also can be valued [0-1] or [0-255], but that doesn't matter for this maths
 	r = c.r or c[1]
 	g = c.g or c[2]
 	b = c.b or c[3]
 	a = c.a or c[4] or 1
 
-	-- from: https://www.w3.org/TR/filter-effects-1/#feColorMatrixElement
+	-- Numbers taken from factorio's shader. Keep in sync with run-conversion.py
 	ret = {
-		r = (r*(0.213 + 0.787*sat) + g*(0.715 - 0.715*sat) + b*(0.072 - 0.072*sat)) * bri,
-		g = (r*(0.213 - 0.213*sat) + g*(0.715 + 0.285*sat) + b*(0.072 - 0.072*sat)) * bri,
-		b = (r*(0.213 - 0.213*sat) + g*(0.715 - 0.715*sat) + b*(0.072 + 0.928*sat)) * bri,
+		r = (r*(0.3086 + 0.6914*sat) + g*(0.6094 - 0.6094*sat) + b*(0.0820 - 0.0820*sat)) * bri,
+		g = (r*(0.3086 - 0.3086*sat) + g*(0.6094 + 0.3906*sat) + b*(0.0820 - 0.0820*sat)) * bri,
+		b = (r*(0.3086 - 0.3086*sat) + g*(0.6094 - 0.6094*sat) + b*(0.0820 + 0.9180*sat)) * bri,
 		a = a,
 	}
 
@@ -113,15 +113,15 @@ end
 for entity_group_name, entity_group in pairs(data.raw) do
 	for _, entity in pairs(entity_group) do
 		if entity.map_color ~= nil then
-			entity.map_color = desaturate(entity.map_color, 0.1, 0.7)
+			entity.map_color = desaturate(entity.map_color, 0.7, 0.1)
 		end
 
 		if entity.friendly_map_color ~= nil then
-			entity.friendly_map_color = desaturate(entity.friendly_map_color, 0.1, 0.7)
+			entity.friendly_map_color = desaturate(entity.friendly_map_color, 0.7, 0.1)
 		end
 
 		if entity.enemy_map_color ~= nil then
-			entity.enemy_map_color = desaturate(entity.enemy_map_color, 0.1, 0.7)
+			entity.enemy_map_color = desaturate(entity.enemy_map_color, 0.7, 0.1)
 		end
 	end
 end
@@ -135,8 +135,8 @@ local function desaturate_table(t, sat, bri, postfix)
 		end
 	end
 end
-desaturate_table(data.raw["utility-constants"].default.chart, 0.1, 0.7, "_color")
-desaturate_table(data.raw["utility-constants"].default.chart.default_color_by_type, 0.1, 0.7)
-desaturate_table(data.raw["utility-constants"].default.chart.default_friendly_color_by_type, 0.1, 0.7)
+desaturate_table(data.raw["utility-constants"].default.chart, 0.7, 0.1, "_color")
+desaturate_table(data.raw["utility-constants"].default.chart.default_color_by_type, 0.7, 0.1)
+desaturate_table(data.raw["utility-constants"].default.chart.default_friendly_color_by_type, 0.7, 0.1)
 
 

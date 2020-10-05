@@ -202,9 +202,8 @@ class MultiProcessor:
 
 
 def render_image(args):
-    path, brightness, alpha = args
+    path, brightness, saturation = args
 
-    path, brightness, alpha = args
     replace = str(path).replace("originals", "data")
 
     os.makedirs(Path(replace).parent, exist_ok=True)
@@ -214,17 +213,19 @@ def render_image(args):
     img_alpha = img_orig.getchannel("A")
     img_rgb = img_orig.convert("RGB")
 
-    color_space = (0.3086, 0.6094, 0.0820, 0)
-    img_gray = img_rgb.convert("L", color_space)
-    img_converted = img_gray.convert("RGB")
+    # Numbers taken from factorio's shader. Keep in sync with data-final-fixes.lua
+    color_space = (
+        0.3086 + 0.6914*saturation, 0.6094 - 0.6094*saturation, 0.0820 - 0.0820*saturation, 0,
+        0.3086 - 0.3086*saturation, 0.6094 + 0.3906*saturation, 0.0820 - 0.0820*saturation, 0,
+        0.3086 - 0.3086*saturation, 0.6094 - 0.6094*saturation, 0.0820 + 0.9180*saturation, 0,
+    )
+    color_space = list(c*brightness for c in color_space)
 
-    img_dark = ImageEnhance.Brightness(img_converted).enhance(brightness)
-    img_blend = Image.blend(img_dark, img_rgb, alpha)
+    img_converted = img_rgb.convert("RGB", color_space)
+    img_converted.putalpha(img_alpha)
 
     print(path, "->", replace)
-    img_converted_with_alpha = img_blend.copy()
-    img_converted_with_alpha.putalpha(img_alpha)
-    img_converted_with_alpha.save(replace)
+    img_converted.save(replace)
 
 
 def main():
