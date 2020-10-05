@@ -3,6 +3,7 @@
 Notes:
 - On masOS --factorio-data should be /Applications/factorio.app/Contents/data
 """
+import json
 import shutil
 import tempfile
 from pathlib import Path
@@ -49,8 +50,12 @@ def cli(pack_dir, pack_version, factorio_data):
         fg="green",
     )
 
-    pack_name = f"Factorio-Noir-{Path(pack_dir).name}_{pack_version}"
-    target_dir = Path(tempfile.mkdtemp()) / pack_name
+    if Path(pack_dir).name.lower() == "vanilla":
+        pack_name = f"Factorio-Noir"
+    else:
+        pack_name = f"Factorio-Noir-{Path(pack_dir).name}"
+
+    target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
     target_dir.mkdir(exist_ok=True, parents=True)
 
     click.echo(f"Created temporary directory: {target_dir}")
@@ -83,6 +88,17 @@ def cli(pack_dir, pack_version, factorio_data):
     for f in FILES_TO_COPY_VERBATIM:
         shutil.copy(MOD_ROOT / f, target_dir)
 
+    click.echo("Patching the info.json file")
+    with (target_dir / "info.json").open() as file:
+        info_file = json.load(file)
+
+    info_file["name"] = pack_name
+    info_file["version"] = pack_version
+    info_file["dependencies"].extend(VANILLA_MODS ^ used_mods)
+
+    with (target_dir / "info.json").open("w") as file:
+        json.dump(info_file, file, indent=4)
+
     click.echo("Starting to process sprites")
     with sprite_processor(process_sprite) as submit:
         with click.progressbar(categories) as progress:
@@ -95,7 +111,7 @@ def cli(pack_dir, pack_version, factorio_data):
 
     click.echo("Making ZIP package")
     archive_name = shutil.make_archive(
-        MOD_ROOT / pack_name,
+        MOD_ROOT / f"{pack_name}_{pack_version}",
         format="zip",
         root_dir=target_dir.parent,
         base_dir=target_dir.name,
