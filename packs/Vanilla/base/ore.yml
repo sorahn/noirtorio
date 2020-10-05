@@ -1,0 +1,14 @@
+mod: base
+
+treatment:
+  brightness: 0.2
+
+graphics:
+  - iron-ore
+  - copper-ore
+  - stone
+  - coal
+  - uranium-ore
+
+excludes:
+  - glow

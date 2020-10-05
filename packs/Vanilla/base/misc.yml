@@ -1,0 +1,12 @@
+mod: base
+
+treatment:
+  saturation: 0.6
+  brightness: 0.05
+
+graphics:
+  - item-group
+  - technology
+  - equipment
+  - achievement
+  - icons
