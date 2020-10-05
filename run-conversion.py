@@ -186,13 +186,16 @@ def render_image(path, brightness, saturation):
     img_alpha = img_orig.getchannel("A")
     img_rgb = img_orig.convert("RGB")
 
+    # fmt: off
     # Numbers taken from factorio's shader. Keep in sync with data-final-fixes.lua
     color_space = (
-        0.3086 + 0.6914*saturation, 0.6094 - 0.6094*saturation, 0.0820 - 0.0820*saturation, 0,
-        0.3086 - 0.3086*saturation, 0.6094 + 0.3906*saturation, 0.0820 - 0.0820*saturation, 0,
-        0.3086 - 0.3086*saturation, 0.6094 - 0.6094*saturation, 0.0820 + 0.9180*saturation, 0,
+        0.3086 + 0.6914 * saturation, 0.6094 - 0.6094 * saturation, 0.0820 - 0.0820 * saturation, 0,
+        0.3086 - 0.3086 * saturation, 0.6094 + 0.3906 * saturation, 0.0820 - 0.0820 * saturation, 0,
+        0.3086 - 0.3086 * saturation, 0.6094 - 0.6094 * saturation, 0.0820 + 0.9180 * saturation, 0,
     )
-    color_space = list(c*brightness for c in color_space)
+    # fmt: on
+
+    color_space = list(c * brightness for c in color_space)
 
     img_converted = img_rgb.convert("RGB", color_space)
     img_converted.putalpha(img_alpha)
@@ -227,7 +230,7 @@ def main():
 
     # Terrain
     for filename in generate_filenames(TERRAIN, TERRAIN_EXCLUDE):
-        render(filename, 1, 0.4)
+        render(filename, 0.5, 0.6)
 
     # Ore
     for filename in generate_filenames(ORE, ORE_EXCLUDE):
