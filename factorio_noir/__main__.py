@@ -3,6 +3,7 @@
 Notes:
 - On masOS --factorio-data should be /Applications/factorio.app/Contents/data
 """
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -11,6 +12,13 @@ import click
 from factorio_noir.category import SpriteCategory
 from factorio_noir.mods import VANILLA_MODS, prepare_vanilla_mod
 
+MOD_ROOT = Path(__file__).parent.parent.resolve()
+FILES_TO_COPY_VERBATIM = {
+    "info.json",
+    "config.lua",
+    "data-final-fixes.lua",
+    "background-image.jpg",
+}
 
 
 @click.command()
@@ -70,6 +78,23 @@ def cli(pack_dir, pack_version, factorio_data):
         )
 
     click.secho("Prepared all mods, now adding info.json and other files.", fg="green")
+    for f in FILES_TO_COPY_VERBATIM:
+        shutil.copy(MOD_ROOT / f, target_dir)
+
+    click.echo("Making ZIP package")
+    archive_name = shutil.make_archive(
+        MOD_ROOT / pack_name,
+        format="zip",
+        root_dir=target_dir.parent,
+        base_dir=target_dir.name,
+    )
+    click.secho(
+        f"Created archive for pack: {Path(archive_name).relative_to(Path.cwd())}",
+        fg="green",
+    )
+    click.secho("Removing temp dir, and cleaning up.", fg="yellow")
+    shutil.rmtree(target_dir)
+
 
 if __name__ == "__main__":
     cli()
