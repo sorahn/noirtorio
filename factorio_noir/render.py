@@ -1,6 +1,22 @@
 """Render a modified sprite."""
 
+from pathlib import Path
+
 import attr
+from PIL import Image
+
+from factorio_noir.category import SpriteTreatment
+
+
+def process_sprite(sprite_path: Path, treatment: SpriteTreatment):
+    """Process a sprite in-place, copy the file before to not affect the original."""
+    sprite = Image.open(sprite_path).convert("RGBA")
+    processed_sprite = apply_transforms(
+        sprite,
+        saturation=treatment.saturation,
+        brightness=treatment.brightness,
+    )
+    processed_sprite.save(sprite_path)
 
 
 @attr.s(auto_attribs=True)

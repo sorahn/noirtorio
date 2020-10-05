@@ -11,12 +11,11 @@ pipenv install
 
 ## How to use
 
-Copy the graphics folders from Factorio:
+```bash
+pipenv run python -m factorio_noir --factorio-data <FACTORIO_DATA_DIR> packs/Vanilla
+```
 
-- `<factorio>/data/base/graphics` -> `originals/base/graphics`
-- `<factorio>/data/core/graphics` -> `originals/core/graphics`
+Notes:
+- If a environment variable `FACTORIO_DATA` is present, the `--factorio-data`
+  flag is not needed
 
-run `./do-the-things.sh`
-
-Zip Command
-`zip -r factorio-noir.zip . -x '*originals*' -x '*.git*'`

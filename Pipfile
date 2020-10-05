@@ -12,6 +12,7 @@ pillow = "*"
 click = "*"
 "ruamel.yaml" = "*"
 attrs = "*"
+luaparser = "*"
 
 [requires]
 python_version = "3.8"

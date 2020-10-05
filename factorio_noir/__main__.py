@@ -11,6 +11,8 @@ import click
 
 from factorio_noir.category import SpriteCategory
 from factorio_noir.mods import VANILLA_MODS, prepare_vanilla_mod
+from factorio_noir.render import process_sprite
+from factorio_noir.worker import sprite_processor
 
 MOD_ROOT = Path(__file__).parent.parent.resolve()
 FILES_TO_COPY_VERBATIM = {
@@ -80,6 +82,16 @@ def cli(pack_dir, pack_version, factorio_data):
     click.secho("Prepared all mods, now adding info.json and other files.", fg="green")
     for f in FILES_TO_COPY_VERBATIM:
         shutil.copy(MOD_ROOT / f, target_dir)
+
+    click.echo("Starting to process sprites")
+    with sprite_processor(process_sprite) as submit:
+        with click.progressbar(categories) as progress:
+            for category in progress:
+                for sprite_path in category.sprite_paths(target_dir):
+                    submit(
+                        sprite_path=sprite_path,
+                        treatment=category.treatment,
+                    )
 
     click.echo("Making ZIP package")
     archive_name = shutil.make_archive(
