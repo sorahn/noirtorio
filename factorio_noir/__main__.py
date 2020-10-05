@@ -7,11 +7,10 @@ import tempfile
 from pathlib import Path
 
 import click
-from click import Argument
 
 from factorio_noir.category import SpriteCategory
+from factorio_noir.mods import VANILLA_MODS, prepare_vanilla_mod
 
-VANILLA_MODS = {"core", "base"}
 
 
 @click.command()
@@ -40,6 +39,11 @@ def cli(pack_dir, pack_version, factorio_data):
         fg="green",
     )
 
+    pack_name = f"Factorio-Noir-{Path(pack_dir).name}_{pack_version}"
+    target_dir = Path(tempfile.mkdtemp()) / pack_name
+    target_dir.mkdir(exist_ok=True, parents=True)
+
+    click.echo(f"Created temporary directory: {target_dir}")
     if VANILLA_MODS & used_mods:
         if factorio_data is None:
             click.secho(
@@ -56,11 +60,16 @@ def cli(pack_dir, pack_version, factorio_data):
             )
             raise click.Abort
 
+        for mod in VANILLA_MODS & used_mods:
+            click.echo(f"Preparing mod: {mod}")
+            prepare_vanilla_mod(factorio_data, mod, target_dir=target_dir)
+
     if VANILLA_MODS ^ used_mods:
         raise NotImplementedError(
             "Loading other mods than vanilla is not implemented yet."
         )
 
+    click.secho("Prepared all mods, now adding info.json and other files.", fg="green")
 
 if __name__ == "__main__":
     cli()
