@@ -25,6 +25,7 @@ FILES_TO_COPY_VERBATIM = {
 
 @click.command()
 @click.option("--pack-version", default="0.0.1")
+@click.option("--dev", is_flag=True)
 @click.option(
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
@@ -35,7 +36,7 @@ FILES_TO_COPY_VERBATIM = {
     "pack-dir",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
 )
-def cli(pack_dir, pack_version, factorio_data):
+def cli(pack_dir, dev, pack_version, factorio_data):
     """Generate a Factorio-Noir package from pack directory."""
     click.echo(f"Loading categories for pack: {pack_dir}")
     categories = [
@@ -53,7 +54,13 @@ def cli(pack_dir, pack_version, factorio_data):
     if Path(pack_dir).name.lower() != "vanilla":
         pack_name += f"-{Path(pack_dir).name}"
 
-    target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
+    if dev is True:
+        target_dir = MOD_ROOT / "dist" / f"{pack_name}_{pack_version}"
+        if target_dir.exists():
+            shutil.rmtree(target_dir)
+    else:
+        target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
+
     target_dir.mkdir(exist_ok=True, parents=True)
 
     click.echo(f"Created temporary directory: {target_dir}")
@@ -104,7 +111,7 @@ def cli(pack_dir, pack_version, factorio_data):
 
     click.echo("Starting to process sprites")
     with sprite_processor(process_sprite) as submit:
-        with click.progressbar(categories, label="Spool sprite tasks") as progress:
+        with click.progressbar(categories, label="Make sprites tasks") as progress:
             for category in progress:
                 for sprite_path in category.sprite_paths(target_dir):
                     submit(
@@ -112,9 +119,13 @@ def cli(pack_dir, pack_version, factorio_data):
                         treatment=category.treatment,
                     )
 
+    if dev is True:
+        return
+
     click.echo("Making ZIP package")
+    (MOD_ROOT / "dist").mkdir(parents=True, exist_ok=True)
     archive_name = shutil.make_archive(
-        MOD_ROOT / f"{pack_name}_{pack_version}",
+        MOD_ROOT / "dist" / f"{pack_name}_{pack_version}",
         format="zip",
         root_dir=target_dir.parent,
         base_dir=target_dir.name,
