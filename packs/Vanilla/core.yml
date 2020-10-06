@@ -6,6 +6,7 @@ core:
   graphics:
 
 excludes:
+  - white-square.png
   - green-wire
   - red-wire
   - visualization

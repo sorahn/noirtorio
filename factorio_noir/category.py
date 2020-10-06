@@ -36,7 +36,7 @@ class SpriteCategory:
     excludes: List[str]
 
     @classmethod
-    def from_yaml(cls, yaml_path: Path):
+    def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]):
         """Read the sprite category to do from a yaml fragment."""
         definition = SAFE_PARSER.load(yaml_path)
         treatment = SpriteTreatment.from_yaml(definition.pop("treatment"))
@@ -64,7 +64,16 @@ class SpriteCategory:
             )
 
         for mod, first_node in definition.items():
-            mod_patterns = parse_mod_patterns(Path(mod), first_node)
+            for mod_root in source_dirs:
+                mod_path = mod_root / mod
+
+                # TODO: Mod could have version number, and/or be a zip file
+                if mod_path.exists():
+                    break
+            else:
+                raise Exception("Failed to find code for mod: %s" % mod)
+
+            mod_patterns = [(mod_path, mod, p.relative_to(mod_path)) for p in parse_mod_patterns(mod_path, first_node)]
             patterns.extend(mod_patterns)
 
         return cls(
@@ -75,16 +84,18 @@ class SpriteCategory:
             excludes=excludes,
         )
 
-    def sprite_paths(self, root_dir):
+
+    def sprite_paths(self):
         """Yield all sprite paths matching this category."""
+
         yield from (
-            sprite_path
+            (sprite_path, Path(mod) / sprite_path.relative_to(mod_path))
             # For each graphic directory we want recursively all png file
-            for pattern in self.patterns
-            for sprite_path in (root_dir / "data").glob(pattern.as_posix())
+            for mod_path, mod, pattern in self.patterns
+            for sprite_path in mod_path.glob(pattern.as_posix())
             # But they should not match any of the excludes
             if all(
-                exclude not in sprite_path.relative_to(root_dir).as_posix()
+                exclude not in sprite_path.relative_to(mod_path).as_posix()
                 for exclude in self.excludes
             )
         )

@@ -17,4 +17,8 @@ base:
       logistic-robot:
 
 excludes:
+  - mask
   - hazard
+  - water-transitions
+  - water-noise
+
