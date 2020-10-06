@@ -24,4 +24,5 @@ everything to a directory in `dist/`
 Notes:
 - If a environment variable `FACTORIO_DATA` is present, the `--factorio-data`
   flag is not needed
-
+- Same `DEV=true` enable permanent dev mode
+- [Pipenv load `.env` file in `pipenv shell` and `pipenv run`](https://pipenv.pypa.io/en/latest/advanced/#automatic-loading-of-env)
