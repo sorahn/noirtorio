@@ -13,8 +13,8 @@ def process_sprite(sprite_path: Path, treatment: SpriteTreatment):
     sprite = Image.open(sprite_path).convert("RGBA")
     processed_sprite = apply_transforms(
         sprite,
-        brightness=treatment.saturation,
-        saturation=treatment.brightness,
+        saturation=treatment.saturation,
+        brightness=treatment.brightness,
     )
     sprite_path.unlink()
     processed_sprite.save(sprite_path)
@@ -57,27 +57,6 @@ def apply_transforms(image, saturation, brightness):
     img_rgb = image.convert("RGB")
 
     color_space = DEFAULT_COLORSPACE.matrix(saturation, brightness)
-
-    img_converted = img_rgb.convert("RGB", color_space)
-    img_converted.putalpha(img_alpha)
-
-    return img_converted
-
-
-def old_transforms(img_orig, brightness, saturation):
-    img_alpha = img_orig.getchannel("A")
-    img_rgb = img_orig.convert("RGB")
-
-    # fmt: off
-    # Numbers taken from factorio's shader. Keep in sync with data-final-fixes.lua
-    color_space = (
-        0.3086 + 0.6914 * saturation, 0.6094 - 0.6094 * saturation, 0.0820 - 0.0820 * saturation, 0,
-        0.3086 - 0.3086 * saturation, 0.6094 + 0.3906 * saturation, 0.0820 - 0.0820 * saturation, 0,
-        0.3086 - 0.3086 * saturation, 0.6094 - 0.6094 * saturation, 0.0820 + 0.9180 * saturation, 0,
-    )
-    # fmt: on
-
-    color_space = list(c * brightness for c in color_space)
 
     img_converted = img_rgb.convert("RGB", color_space)
     img_converted.putalpha(img_alpha)
