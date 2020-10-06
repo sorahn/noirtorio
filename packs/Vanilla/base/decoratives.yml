@@ -7,8 +7,11 @@ treatment:
 graphics:
   - decorative
   - terrain
-  - artillery-turret
-  - artillery-wagon
+  - entity/artillery-turret
+  - entity/artillery-wagon
+  - entity/construction-robot
+  - entity/logistic-robot
+  - entity/ship-wreck
 
 excludes:
   - hazard
