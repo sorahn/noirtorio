@@ -6,13 +6,13 @@ return {
 	data = {
 		base = {
 			graphics = {
-				
+			
 			}
-    },
-    core = {
+        },
+        core = {
 			graphics = {
 
 			}
-    }
+        }
 	}
 }
