@@ -55,6 +55,8 @@ def cli(pack_dir, dev, pack_version, factorio_data):
         pack_name += f"-{Path(pack_dir).name}"
 
     if dev is True:
+        # for JD h4x
+        # target_dir = MOD_ROOT / ".." / "mods" / pack_name
         target_dir = MOD_ROOT / "dist" / "dev" / pack_name
 
         click.secho(

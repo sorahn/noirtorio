@@ -10,6 +10,14 @@ graphics:
   - entity/stone
   - entity/coal
   - entity/uranium-ore
+  - technology
+  - icons/fluid
 
 excludes:
   - glow
+  - advanced-oil-processing
+  - basic-oil-processing
+  - coal-liquefaction
+  - heavy-oil-cracking
+  - light-oil-cracking
+

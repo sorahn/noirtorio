@@ -1,0 +1,16 @@
+mod: base
+
+treatment:
+  brightness: 0.7
+  saturation: 0.7
+
+graphics:
+  - entity/biter
+  - entity/spawner
+  - entity/spitter
+  - entity/worm
+  - entity/artillery-turret
+  - entity/artillery-wagon
+
+excludes:
+  - shadow

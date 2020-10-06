@@ -6,8 +6,6 @@ treatment:
 
 graphics:
   - entity/accumulator
-  - entity/artillery-turret
-  - entity/artillery-wagon
   - entity/beacon
   - entity/big-electric-pole
   - entity/boiler
@@ -91,3 +89,4 @@ excludes:
   - laser-body
   - charge
   - signal.png
+  - electric-pole-radius-visualization
