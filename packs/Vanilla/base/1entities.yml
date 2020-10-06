@@ -1,76 +1,75 @@
-mod: base
-
 treatment:
   brightness: 0.7
   saturation: 0.05
 
-graphics:
-  - entity/accumulator
-  - entity/beacon
-  - entity/big-electric-pole
-  - entity/boiler
-  - entity/burner-inserter
-  - entity/burner-mining-drill
-  - entity/car
-  - entity/cargo-wagon
-  - entity/centrifuge
-  - entity/chemical-plant
-  - entity/circuit-connector
-  - entity/combinator
-  - entity/compilatron
-  - entity/compilatron-chest
-  - entity/curved-rail
-  - entity/diesel-locomotive
-  - entity/electric-furnace
-  - entity/electric-mining-drill
-  - entity/flamethrower-turret
-  - entity/fluid-wagon
-  - entity/gate
-  - entity/gun-turret
-  - entity/heat-exchanger
-  - entity/heat-pipe
-  - entity/infinity-chest
-  - entity/iron-chest
-  - entity/lab
-  - entity/land-mine
-  - entity/laser-turret
-  - entity/loader
-  - entity/market
-  - entity/medium-electric-pole
-  - entity/nuclear-reactor
-  - entity/offshore-pump
-  - entity/oil-refinery
-  - entity/pipe
-  - entity/pipe-covers
-  - entity/pipe-to-ground
-  - entity/power-switch
-  - entity/programmable-speaker
-  - entity/pump
-  - entity/pumpjack
-  - entity/radar
-  - entity/rail-chain-signal
-  - entity/rail-endings
-  - entity/rail-signal
-  - entity/remnants
-  - entity/roboport
-  - entity/rocket-silo
-  - entity/small-electric-pole
-  - entity/small-lamp
-  - entity/solar-panel
-  - entity/spidertron
-  - entity/steam-engine
-  - entity/steam-turbine
-  - entity/steel-chest
-  - entity/steel-furnace
-  - entity/stone-furnace
-  - entity/storage-tank
-  - entity/straight-rail
-  - entity/substation
-  - entity/tank
-  - entity/train-stop
-  - entity/tree
-  - entity/wall
-  - entity/wooden-chest
+base:
+  graphics:
+    entity:
+      accumulator:
+      beacon:
+      big-electric-pole:
+      boiler:
+      burner-mining-drill:
+      car:
+      cargo-wagon:
+      centrifuge:
+      chemical-plant:
+      circuit-connector:
+      combinator:
+      compilatron:
+      compilatron-chest:
+      curved-rail:
+      diesel-locomotive:
+      electric-furnace:
+      electric-mining-drill:
+      flamethrower-turret:
+      fluid-wagon:
+      gate:
+      gun-turret:
+      heat-exchanger:
+      heat-pipe:
+      infinity-chest:
+      iron-chest:
+      lab:
+      land-mine:
+      laser-turret:
+      loader:
+      market:
+      medium-electric-pole:
+      nuclear-reactor:
+      offshore-pump:
+      oil-refinery:
+      pipe:
+      pipe-covers:
+      pipe-to-ground:
+      power-switch:
+      programmable-speaker:
+      pump:
+      pumpjack:
+      radar:
+      rail-chain-signal:
+      rail-endings:
+      rail-signal:
+      remnants:
+      roboport:
+      rocket-silo:
+      small-electric-pole:
+      small-lamp:
+      solar-panel:
+      spidertron:
+      steam-engine:
+      steam-turbine:
+      steel-chest:
+      steel-furnace:
+      stone-furnace:
+      storage-tank:
+      straight-rail:
+      substation:
+      tank:
+      train-stop:
+      tree:
+      wall:
+      wooden-chest:
 
 excludes:
   - shadow

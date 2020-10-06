@@ -16,7 +16,6 @@ def process_sprite(sprite_path: Path, treatment: SpriteTreatment):
         saturation=treatment.saturation,
         brightness=treatment.brightness,
     )
-    sprite_path.unlink()
     processed_sprite.save(sprite_path)
 
 

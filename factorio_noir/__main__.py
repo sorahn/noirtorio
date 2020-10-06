@@ -46,7 +46,7 @@ def cli(pack_dir, dev, pack_version, factorio_data):
         for category_file in Path(pack_dir).glob("**/*.yml")
     ]
 
-    used_mods = {c.mod for c in categories}
+    used_mods = {m for c in categories for m in c.mods}
     click.secho(
         f"Loaded {len(categories)} categories using a total of {len(used_mods)} mods.",
         fg="green",

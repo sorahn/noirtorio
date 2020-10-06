@@ -1,11 +1,12 @@
-mod: core
-
 treatment:
-  brightness: 0.7
   saturation: 0.1
+  brightness: 0.7
 
-graphics: ["**"]
+core:
+  graphics:
 
 excludes:
   - green-wire
   - red-wire
+  - visualization
+  - radius
