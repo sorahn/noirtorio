@@ -25,7 +25,7 @@ FILES_TO_COPY_VERBATIM = {
 
 @click.command()
 @click.option("--pack-version", default="0.0.1")
-@click.option("--dev", is_flag=True)
+@click.option("--dev", is_flag=True, envvar="DEV")
 @click.option(
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
@@ -55,15 +55,29 @@ def cli(pack_dir, dev, pack_version, factorio_data):
         pack_name += f"-{Path(pack_dir).name}"
 
     if dev is True:
-        target_dir = MOD_ROOT / "dist" / f"{pack_name}_{pack_version}"
-        if target_dir.exists():
-            shutil.rmtree(target_dir)
+        target_dir = MOD_ROOT / "dist" / "dev" / pack_name
+
+        click.secho(
+            f"Using dev directory: {target_dir.relative_to(Path.cwd())}", fg="blue"
+        )
+        if target_dir.exists() and not target_dir.is_dir():
+            click.secho("  - Not a directory, deleting it", fg="yellow")
+            target_dir.unlink()
+        elif target_dir.exists():
+            click.secho("  - Emptying directory", fg="yellow")
+            for f in target_dir.iterdir():
+                if f.is_file():
+                    f.unlink()
+                else:
+                    shutil.rmtree(f)
+
+        target_dir.mkdir(exist_ok=True, parents=True)
+
     else:
         target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
+        target_dir.mkdir(exist_ok=True, parents=True)
+        click.echo(f"Created temporary directory: {target_dir}")
 
-    target_dir.mkdir(exist_ok=True, parents=True)
-
-    click.echo(f"Created temporary directory: {target_dir}")
     if VANILLA_MODS & used_mods:
         if factorio_data is None:
             click.secho(
