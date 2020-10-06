@@ -1,6 +1,7 @@
 mod: base
 
 treatment:
+  brightness: 0.7
   saturation: 0.05
 
 graphics:

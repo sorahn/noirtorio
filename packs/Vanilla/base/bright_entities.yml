@@ -1,5 +1,9 @@
 mod: base
 
+treatment:
+  brightness: 0.7
+  saturation: 0.05
+
 graphics:
   - entity/assembling-machine-1
   - entity/assembling-machine-2

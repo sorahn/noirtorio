@@ -1,8 +1,8 @@
 mod: base
 
 treatment:
-  saturation: 0.05
   brightness: 0.6
+  saturation: 0.05
 
 graphics:
   - item-group

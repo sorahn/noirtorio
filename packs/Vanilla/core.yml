@@ -1,5 +1,9 @@
 mod: core
 
+treatment:
+  brightness: 0.7
+  saturation: 0.1
+
 graphics: ["**"]
 
 excludes:
