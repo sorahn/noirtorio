@@ -12,15 +12,15 @@ SAFE_PARSER = YAML(typ="safe")
 class SpriteTreatment:
     """Describe the treatment to execute on a given sprite."""
 
-    saturation: float = attr.ib(converter=attr.converters.default_if_none(0.1))
-    brightness: float = attr.ib(converter=attr.converters.default_if_none(0.7))
+    saturation: float
+    brightness: float
 
     @classmethod
     def from_yaml(cls, yaml_fragment: Dict[str, float]):
         """Read the sprite treatment to do from a yaml fragment."""
         return cls(
-            saturation=yaml_fragment.get("saturation"),
-            brightness=yaml_fragment.get("brightness"),
+            saturation=yaml_fragment["saturation"],
+            brightness=yaml_fragment["brightness"],
         )
 
 
