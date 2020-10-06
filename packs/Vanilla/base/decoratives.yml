@@ -1,0 +1,14 @@
+mod: base
+
+treatment:
+  saturation: 0.6
+  brightness: 0.5
+
+graphics:
+  - terrain
+  - artillery-turret
+  - artillery-wagon
+
+excludes:
+  - cliff
+  - hazard

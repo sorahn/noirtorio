@@ -1,9 +1,9 @@
 {
-  "name": "factorio-noir",
-  "version": "0.0.1",
+  "name": "<TO_BE_REPLACED_IN_SCRIPT>",
+  "version": "<TO_BE_REPLACED_IN_SCRIPT>",
   "title": "Factorio Noir",
   "author": "sorahn",
-  "homepage": "https://github.com/sorahn/IndustrialDisplayPlates",
+  "homepage": "https://github.com/sorahn/factorio-noir",
   "dependencies": ["base >= 1.0.0"],
   "description": "A dark and stormy night in the factory",
   "factorio_version": "1.0.0"

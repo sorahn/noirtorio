@@ -1,0 +1,41 @@
+mod: base
+
+graphics:
+  - entity/assembling-machine-1
+  - entity/assembling-machine-2
+  - entity/assembling-machine-3
+  - entity/burner-inserter
+  - entity/inserter
+  - entity/long-handed-inserter
+  - entity/fast-inserter
+  - entity/filter-inserter
+  - entity/stack-inserter
+  - entity/stack-filter-inserter
+  - entity/express-splitter
+  - entity/express-transport-belt
+  - entity/express-underground-belt
+  - entity/fast-splitter
+  - entity/fast-transport-belt
+  - entity/fast-underground-belt
+  - entity/splitter
+  - entity/transport-belt
+  - entity/underground-belt
+  - entity/logistic-chest
+
+excludes:
+  - shadow
+  - glow
+  - heater
+  - heated
+  - light
+  - fire
+  - flame
+  - mask
+  - green
+  - liquid
+  - foam
+  - fluid-flow
+  - diode-red
+  - laser-body
+  - charge
+  - signal.png

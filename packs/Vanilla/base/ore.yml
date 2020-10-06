@@ -1,0 +1,14 @@
+mod: base
+
+treatment:
+  saturation: 0.2
+
+graphics:
+  - iron-ore
+  - copper-ore
+  - stone
+  - coal
+  - uranium-ore
+
+excludes:
+  - glow
