@@ -4,19 +4,19 @@ treatment:
 
 base:
   graphics:
-    - iron-ore
-    - copper-ore
-    - stone
-    - coal
-    - uranium-ore
+    entity:
+      iron-ore:
+      copper-ore:
+      stone:
+      coal:
+      uranium-ore:
+      technology:
+    icons:
+      fluid:
 
 excludes:
   - glow
-  - icons
-  - wall
-  - rail
-  - furnace
-  - terrain
   - oil-processing
-  - coal-liquefaction
   - oil-cracking
+  - coal-liquefaction
+  - barreling
