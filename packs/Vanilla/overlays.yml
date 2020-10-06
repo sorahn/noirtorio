@@ -1,6 +1,6 @@
 treatment:
-  saturation: 1
   brightness: 0.1
+  saturation: 1
 
 core:
   graphics:
