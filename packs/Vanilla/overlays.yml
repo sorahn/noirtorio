@@ -1,0 +1,15 @@
+treatment:
+  saturation: 1
+  brightness: 0.1
+
+core:
+  graphics:
+    - artillery-impact-map-visualization
+    - visualization-construction-radius
+    - visualization-logistic-radius
+    - pollution-visualization
+
+base:
+  graphics:
+    entity:
+      - electric-pole-radius-visualization

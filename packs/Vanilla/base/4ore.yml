@@ -1,23 +1,22 @@
-mod: base
-
 treatment:
   brightness: 0.7
   saturation: 0.2
 
-graphics:
-  - entity/iron-ore
-  - entity/copper-ore
-  - entity/stone
-  - entity/coal
-  - entity/uranium-ore
-  - technology
-  - icons/fluid
+base:
+  graphics:
+    - iron-ore
+    - copper-ore
+    - stone
+    - coal
+    - uranium-ore
 
 excludes:
   - glow
-  - advanced-oil-processing
-  - basic-oil-processing
+  - icons
+  - wall
+  - rail
+  - furnace
+  - terrain
+  - oil-processing
   - coal-liquefaction
-  - heavy-oil-cracking
-  - light-oil-cracking
-
+  - oil-cracking

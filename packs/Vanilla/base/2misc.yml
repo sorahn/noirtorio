@@ -1,14 +1,15 @@
-mod: base
-
 treatment:
   brightness: 0.5
   saturation: 0.1
 
-graphics:
-  - item-group
-  - equipment
-  - achievement
-  - icons
+base:
+  graphics:
+    item-group:
+    technology:
+    equipment:
+    achievement:
+    icons:
+
 excludes:
   - crude-oil.png
   - heavy-oil.png

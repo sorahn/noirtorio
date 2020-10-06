@@ -1,20 +1,24 @@
-mod: base
-
 treatment:
   brightness: 0.5
   saturation: 0.6
 
-graphics:
-  - decorative
-  - terrain
-  - entity/crash-site-chests
-  - entity/crash-site-generator
-  - entity/crash-site-lab
-  - entity/crash-site-spaceship
-  - entity/crash-site-assembling-machine
-  - entity/ship-wreck
-  - entity/construction-robot
-  - entity/logistic-robot
+base:
+  graphics:
+    decorative:
+    terrain:
+    entity:
+      crash-site-chests:
+      crash-site-generator:
+      crash-site-lab:
+      crash-site-spaceship:
+      crash-site-assembling-machine:
+      ship-wreck:
+      construction-robot:
+      logistic-robot:
 
 excludes:
+  - mask
   - hazard
+  - water-transitions
+  - water-noise
+
