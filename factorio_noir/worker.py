@@ -16,9 +16,9 @@ def sprite_processor(func):
         future = processor.submit(func, *args, **kwargs)
         futures.append(future)
 
-    yield submit
-
     try:
+        yield submit
+
         with click.progressbar(futures, label="Processing sprites") as progress:
             for future in progress:
                 result = future.result()

@@ -4,7 +4,9 @@ Notes:
 - On masOS --factorio-data should be /Applications/factorio.app/Contents/data
 """
 import json
+import pprint
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 
@@ -126,10 +128,28 @@ def cli(pack_dir, dev, pack_version, factorio_data):
         json.dump(info_file, file, indent=4)
 
     click.echo("Starting to process sprites")
+    marked_for_processing = {}
     with sprite_processor(process_sprite) as submit:
         with click.progressbar(categories, label="Make sprites tasks") as progress:
             for category in progress:
                 for sprite_path in category.sprite_paths(target_dir):
+                    if sprite_path in marked_for_processing:
+                        click.echo()
+                        click.secho(
+                            f"The sprite {sprite_path} was included in processing "
+                            f"from more than one category: ",
+                            fg="red",
+                        )
+                        pprint.pprint(
+                            category,
+                            stream=sys.stderr,
+                        )
+                        pprint.pprint(
+                            marked_for_processing[sprite_path],
+                            stream=sys.stderr,
+                        )
+                        raise click.Abort()
+                    marked_for_processing[sprite_path] = category
                     submit(
                         sprite_path=sprite_path,
                         treatment=category.treatment,
