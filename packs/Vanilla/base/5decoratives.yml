@@ -20,5 +20,6 @@ excludes:
   - mask
   - hazard
   - water-transitions
+  - out-of-map-transition
   - water-noise
 

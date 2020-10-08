@@ -17,8 +17,7 @@ def process_sprite(source_path: Path, target_path: Path, treatment: SpriteTreatm
     sprite = Image.open(source_path).convert("RGBA")
     processed_sprite = apply_transforms(
         sprite,
-        saturation=treatment.saturation,
-        brightness=treatment.brightness,
+        treatment,
     )
     processed_sprite.save(target_path)
 
@@ -47,7 +46,6 @@ class ColorSpace:
         #     image[b] = (0*r + 0*g + 1*b + 0*a) = b
         #     # This leaves the image unchanged
 
-
         saturated_matrix = [
             self.X + (1 - self.X) * saturation,
             self.Y * (1 - saturation),
@@ -71,15 +69,40 @@ class ColorSpace:
 DEFAULT_COLORSPACE = ColorSpace(X=0.3086, Y=0.6094, Z=0.0820)
 
 
-def apply_transforms(image, saturation, brightness):
+def apply_transforms(image, treatment):
     """Apply the needed transformations to the given image."""
     img_alpha = image.getchannel("A")
     img_rgb = image.convert("RGB")
 
-    color_space = DEFAULT_COLORSPACE.matrix(saturation, brightness)
+    color_space = DEFAULT_COLORSPACE.matrix(treatment.saturation, treatment.brightness)
 
     img_converted = img_rgb.convert("RGB", color_space)
+
+    for x_index, x_tile in enumerate(treatment.tiling):
+        y_max = len(x_tile)
+        for y_index, tile_strength in enumerate(x_tile):
+            if tile_strength == 1:
+                continue
+
+            # TODO: Double check for off by one errors here
+            bounding_box = (
+                int(image.width * x_index / len(treatment.tiling)),
+                int(image.height * y_index / len(x_tile)),
+                int(image.width * (x_index + 1) / len(treatment.tiling)),
+                int(image.height * (y_index + 1) / len(x_tile)),
+            )
+
+            image_box = img_rgb.crop(bounding_box)
+            # converted_box = img_converted.crop(bounding_box)
+
+            # blended_box = image_box.blend(converted_box, tile_strength)
+
+            # TODO: why doesn't blend work?
+            assert tile_strength == 0
+            blended_box = image_box
+
+            img_converted.paste(blended_box, bounding_box)
+
     img_converted.putalpha(img_alpha)
 
     return img_converted
-

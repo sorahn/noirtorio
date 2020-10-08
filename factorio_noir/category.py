@@ -15,6 +15,7 @@ class SpriteTreatment:
 
     saturation: float
     brightness: float
+    tiling: List[List[float]]
 
     @classmethod
     def from_yaml(cls, yaml_fragment: Dict[str, float]):
@@ -22,6 +23,7 @@ class SpriteTreatment:
         return cls(
             saturation=yaml_fragment["saturation"],
             brightness=yaml_fragment["brightness"],
+            tiling=yaml_fragment.get("tiling", [[1]]),
         )
 
 
@@ -73,7 +75,10 @@ class SpriteCategory:
             else:
                 raise Exception("Failed to find code for mod: %s" % mod)
 
-            mod_patterns = [(mod_path, mod, p.relative_to(mod_path)) for p in parse_mod_patterns(mod_path, first_node)]
+            mod_patterns = [
+                (mod_path, mod, p.relative_to(mod_path))
+                for p in parse_mod_patterns(mod_path, first_node)
+            ]
             patterns.extend(mod_patterns)
 
         return cls(
@@ -83,7 +88,6 @@ class SpriteCategory:
             patterns=patterns,
             excludes=excludes,
         )
-
 
     def sprite_paths(self):
         """Yield all sprite paths matching this category."""
