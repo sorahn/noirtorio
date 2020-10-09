@@ -1,7 +1,8 @@
 treatment:
   brightness: 0.5
   saturation: 0.6
-  tiling: [[1], [1], [0]]
+  tiling:
+    - 1 1 0
 
 base:
   graphics:

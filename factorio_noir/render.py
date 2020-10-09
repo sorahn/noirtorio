@@ -78,30 +78,17 @@ def apply_transforms(image, treatment):
 
     img_converted = img_rgb.convert("RGB", color_space)
 
-    for x_index, x_tile in enumerate(treatment.tiling):
-        y_max = len(x_tile)
-        for y_index, tile_strength in enumerate(x_tile):
-            if tile_strength == 1:
-                continue
+    for bounding_box, tile_strength in treatment.tiles(image.width, image.height):
+        if tile_strength == 1:
+            # we are wanting this tile left untouched
+            continue
 
-            # TODO: Double check for off by one errors here
-            bounding_box = (
-                int(image.width * x_index / len(treatment.tiling)),
-                int(image.height * y_index / len(x_tile)),
-                int(image.width * (x_index + 1) / len(treatment.tiling)),
-                int(image.height * (y_index + 1) / len(x_tile)),
-            )
+        image_box = img_rgb.crop(bounding_box)
+        converted_box = img_converted.crop(bounding_box)
 
-            image_box = img_rgb.crop(bounding_box)
-            # converted_box = img_converted.crop(bounding_box)
+        blended_box = Image.blend(image_box, converted_box, tile_strength)
 
-            # blended_box = image_box.blend(converted_box, tile_strength)
-
-            # TODO: why doesn't blend work?
-            assert tile_strength == 0
-            blended_box = image_box
-
-            img_converted.paste(blended_box, bounding_box)
+        img_converted.paste(blended_box, bounding_box)
 
     img_converted.putalpha(img_alpha)
 
