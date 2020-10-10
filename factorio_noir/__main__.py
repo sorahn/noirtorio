@@ -221,6 +221,9 @@ def gen_pack_files(
 
     info_file["name"] = pack_name
 
+    if not is_vanilla:
+        info_file["title"] += " - " + pack_name
+
     if pack_version is not None:
         info_file["version"] = pack_version
 
