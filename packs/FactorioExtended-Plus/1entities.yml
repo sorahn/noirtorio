@@ -1,0 +1,68 @@
+treatment:
+  brightness: 0.7
+  saturation: 0.5
+
+FactorioExtended-Plus-CompoundSolars:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Core:
+  graphics:
+    entity:
+    technology:
+    icons:
+    group:
+
+FactorioExtended-Plus-Equipment:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Logistics:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Machines:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Module:
+  graphics:
+    entity:
+    technology:
+    icons:
+      
+FactorioExtended-Plus-Power:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Storage:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Transport:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Weaponry:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+excludes:
+  - mask
+

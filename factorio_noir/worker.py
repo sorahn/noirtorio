@@ -5,14 +5,16 @@ from contextlib import contextmanager
 
 import click
 
+from typing import Any, Callable, Iterable, Iterator
+
 
 @contextmanager
-def sprite_processor(func):
+def sprite_processor(func: Callable[..., Any]) -> Iterator[Callable[..., Any]]:
     """Create a processor for sprites using the given function."""
     start_time = time.perf_counter()
     processor, futures = ProcessPoolExecutor(), []
 
-    def submit(*args, **kwargs):
+    def submit(*args: Any, **kwargs: Any) -> None:
         future = processor.submit(func, *args, **kwargs)
         futures.append(future)
 
@@ -21,11 +23,11 @@ def sprite_processor(func):
 
         with click.progressbar(futures, label="Processing sprites") as progress:
             for future in progress:
-                result = future.result()
+                future.result()
 
     except Exception as e:
         # Enter in error management
-        click.secho("Got an error, cancelling all.")
+        click.secho(f"Got an error, cancelling all: {e}")
         for future in futures:
             if not future.done():
                 future.cancel()

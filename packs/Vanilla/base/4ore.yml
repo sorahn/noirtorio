@@ -11,8 +11,6 @@ base:
       coal:
       uranium-ore:
       technology:
-    icons:
-      fluid:
 
 excludes:
   - glow
