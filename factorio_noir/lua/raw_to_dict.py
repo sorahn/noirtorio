@@ -1,5 +1,7 @@
 #!/usr/local/bin/python3
 
+# type: ignore
+
 import math
 import pickle
 import operator

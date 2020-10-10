@@ -4,11 +4,14 @@ Notes:
 - On masOS --factorio-data should be /Applications/factorio.app/Contents/data
 """
 import json
+import os
 import pprint
 import shutil
 import sys
 import tempfile
 from pathlib import Path
+
+from typing import List, Optional
 
 import click
 
@@ -19,22 +22,74 @@ from factorio_noir.worker import sprite_processor
 MOD_ROOT = Path(__file__).parent.parent.resolve()
 
 VANILLA_MODS = {"core", "base"}
+DEFAULT_FACTORIO_DIRS = [
+    "~/.local/share/Steam/steamapps/common/Factorio/data/",
+    "/Applications/factorio.app/Contents/data/",
+    "~/Library/Application Support/Steam/steamapps/common/Factorio/factorio.app/Contents/data/"
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio\\data\\",
+    "C:\\Program Files\\Factorio\\data\\",
+]
+
+DEFAULT_MODS_DIRS = [
+    "~/.factorio/mods/",
+    "~/Library/Application Support/factorio/mods/",
+    # 'C:\Program Files (x86)\Steam\userdata\[user number]\427520\remote',
+]
+
+
+def find_default_dir(dirs: List[str]) -> Optional[str]:
+    home = os.path.expanduser("~")
+
+    for d in dirs:
+        full_dir = Path(d.replace("~", home))
+
+        if full_dir.is_dir():
+            return str(full_dir)
+
+    return None
+
+
+DEFAULT_FACTORIO_DIR = find_default_dir(DEFAULT_FACTORIO_DIRS)
+DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 
 
 @click.command()
-@click.option("--pack-version", default="0.0.1")
+@click.option("--pack-version")
 @click.option("--dev", is_flag=True, envvar="DEV")
 @click.option(
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
-    help="Factorio install directory, needed only if packaging Vanilla pack.",
+    help="Factorio install directory, needed only if packaging Vanilla pack.\n"
+    f"Default: {DEFAULT_FACTORIO_DIR}",  # type: ignore
     envvar="FACTORIO_DATA",
+    default=DEFAULT_FACTORIO_DIR,
+)
+@click.option(
+    "--factorio-mods",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
+    help="Factorio mod directory. Needed only if packaging non-vanilla pack.\n"
+    f"Default: {DEFAULT_MODS_DIR}",
+    envvar="FACTORIO_MODS",
+    default=DEFAULT_MODS_DIR,
+)
+@click.option(
+    "--target",
+    type=click.Path(dir_okay=True, file_okay=True, readable=True),
+    help="The output directory/zip that should be used",
+    envvar="FACTORIO_NOIR_TARGET",
 )
 @click.argument(
     "pack-dir",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
 )
-def cli(pack_dir, dev, pack_version, factorio_data):
+def cli(
+    pack_dir: Path,
+    dev: bool,
+    pack_version: str,
+    factorio_data: Optional[Path],
+    factorio_mods: Optional[Path],
+    target: Optional[Path],
+):
     is_vanilla = Path(pack_dir).name.lower() == "vanilla"
 
     pack_name = "factorio-noir"
@@ -42,9 +97,12 @@ def cli(pack_dir, dev, pack_version, factorio_data):
         pack_name += f"-{Path(pack_dir).name}"
 
     if dev is True:
-        # for JD h4x
-        # target_dir = MOD_ROOT / ".." / "mods" / pack_name
-        target_dir = MOD_ROOT / "dist" / "dev" / pack_name
+        if target is not None:
+            target_dir: Path = Path(target_dir)
+        else:
+            # for JD h4x
+            # target_dir = MOD_ROOT / ".." / "mods" / pack_name
+            target_dir = MOD_ROOT / "dist" / "dev" / pack_name
 
         click.secho(
             f"Using dev directory: {target_dir.relative_to(Path.cwd())}", fg="blue"
@@ -83,22 +141,35 @@ def cli(pack_dir, dev, pack_version, factorio_data):
             )
             raise click.Abort
 
-    if not is_vanilla:
-        raise NotImplementedError(
-            "Loading other mods than vanilla is not implemented yet."
-        )
+    else:
+        if factorio_mods is None:
+            click.secho(
+                "Missing --factorio-mods value, required for editing mod graphics.",
+                fg="red",
+            )
+            raise click.Abort
 
     gen_pack_files(
-        pack_dir, [Path(factorio_data)], target_dir, pack_name, pack_version, is_vanilla
+        pack_dir,
+        [Path(factorio_data), Path(factorio_mods)],  # type: ignore
+        target_dir,
+        pack_name,
+        pack_version,
+        is_vanilla,
     )
 
     if dev is True:
         return
 
     click.echo("Making ZIP package")
-    (MOD_ROOT / "dist").mkdir(parents=True, exist_ok=True)
+    if target is not None:
+        zip_loc = Path(target)
+    else:
+        zip_loc = MOD_ROOT / "dist" / f"{pack_name}_{pack_version}"
+
+    zip_loc.parent.mkdir(parents=True, exist_ok=True)
     archive_name = shutil.make_archive(
-        MOD_ROOT / "dist" / f"{pack_name}_{pack_version}",
+        str(zip_loc),
         format="zip",
         root_dir=target_dir.parent,
         base_dir=target_dir.name,
@@ -112,8 +183,13 @@ def cli(pack_dir, dev, pack_version, factorio_data):
 
 
 def gen_pack_files(
-    pack_dir, source_dirs, target_dir, pack_name, pack_version, is_vanilla
-):
+    pack_dir: Path,
+    source_dirs: List[Path],
+    target_dir: Path,
+    pack_name: str,
+    pack_version: str,
+    is_vanilla: bool,
+) -> None:
     """Generate a Factorio-Noir package from pack directory."""
     click.echo(f"Loading categories for pack: {pack_dir}")
     categories = [
@@ -128,7 +204,7 @@ def gen_pack_files(
     )
 
     click.secho("Prepared all mods, now adding info.json and other files.", fg="green")
-    updated_assets = set()
+    marked_for_processing = {}
 
     shutil.copy(MOD_ROOT / "data-final-fixes.lua", target_dir)
 
@@ -137,60 +213,47 @@ def gen_pack_files(
         graphics_dir.mkdir(exist_ok=True, parents=True)
 
         shutil.copy(MOD_ROOT / "background-image.jpg", graphics_dir)
-        updated_assets.add("__core__/graphics/background-image.jpg")
+        marked_for_processing["__core__/graphics/background-image.jpg"] = "<Builtin>"
 
     click.echo("Patching the info.json file")
     with (MOD_ROOT / "info.json").open() as file:
         info_file = json.load(file)
 
     info_file["name"] = pack_name
-    info_file["version"] = pack_version
-    info_file["dependencies"].extend(VANILLA_MODS ^ used_mods)
+
+    if pack_version is not None:
+        info_file["version"] = pack_version
+
+    info_file["dependencies"].extend(used_mods - VANILLA_MODS)
 
     with (target_dir / "info.json").open("w") as file:
-        json.dump(info_file, file, indent=4)
+        json.dump(info_file, file, indent=4, sort_keys=True)
 
     click.echo("Starting to process sprites")
-    marked_for_processing = {}
     with sprite_processor(process_sprite) as submit:
         with click.progressbar(categories, label="Make sprites tasks") as progress:
             for category in progress:
-                for (
-                    absolute_sprite_path,
-                    relative_sprite_path,
-                ) in category.sprite_paths():
-                    if absolute_sprite_path in marked_for_processing:
+                for mod, sprite_path in category.sprite_paths():
+                    lua_path = f"__{mod.name}__/{sprite_path}"
+
+                    if lua_path in marked_for_processing:
                         click.echo()
                         click.secho(
-                            f"The sprite {absolute_sprite_path} was included in processing "
-                            f"from more than one category: ",
+                            f"The sprite {lua_path} was included in processing "
+                            f"from more than one category: \n"
+                            f"    {str(category.source)}\n"
+                            f"    {marked_for_processing[lua_path]}",
                             fg="red",
                         )
-                        pprint.pprint(
-                            category,
-                            stream=sys.stderr,
-                        )
-                        pprint.pprint(
-                            marked_for_processing[absolute_sprite_path],
-                            stream=sys.stderr,
-                        )
                         raise click.Abort()
-                    marked_for_processing[absolute_sprite_path] = category
+                    marked_for_processing[lua_path] = str(category.source)
 
-                    # TODO: support streaming to/from a zip file
+                    # We want lazy access to the file because contextmanager seralizes
+                    # the file with pickel
                     submit(
-                        source_path=absolute_sprite_path,
-                        target_path=target_dir / "data" / relative_sprite_path,
+                        lazy_source_file=mod.lazy_file(sprite_path),
+                        target_file_path=target_dir / "data" / mod.name / sprite_path,
                         treatment=category.treatment,
-                    )
-
-                    # Always use '/' seperator for lua paths
-                    updated_assets.add(
-                        "__%s__/%s"
-                        % (
-                            relative_sprite_path.parts[0],
-                            "/".join(relative_sprite_path.parts[1:]),
-                        )
                     )
 
     # inform lua which files need to be replaced
@@ -205,7 +268,7 @@ return {
             % (str(is_vanilla).lower(), pack_name)
         )
 
-        for asset in sorted(updated_assets):
+        for asset in sorted(marked_for_processing.keys()):
             file.write('["%s"]=1,\n' % asset)
 
         file.write("    },\n")

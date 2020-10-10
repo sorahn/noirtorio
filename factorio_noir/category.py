@@ -1,10 +1,12 @@
 """A sprite category described in a YAML file."""
 import itertools
 from pathlib import Path
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Any, Tuple, Iterable, Union
 
 import attr
-from ruamel.yaml import YAML
+from ruamel.yaml import YAML  # type: ignore
+
+from factorio_noir.mod import open_mod_read, Mod
 
 SAFE_PARSER = YAML(typ="safe")
 
@@ -18,7 +20,7 @@ class SpriteTreatment:
     tiling: List[List[float]]
 
     @classmethod
-    def from_yaml(cls, yaml_fragment: Dict[str, float]):
+    def from_yaml(cls, yaml_fragment: Dict[str, Any]) -> 'SpriteTreatment':
         """Read the sprite treatment to do from a yaml fragment."""
 
         # Tiling is read as a list of strings to make it be layed out graphically
@@ -37,7 +39,9 @@ class SpriteTreatment:
             tiling=tiling,
         )
 
-    def tiles(self, width, height):
+    def tiles(
+        self, width: int, height: int
+    ) -> Iterable[Tuple[Tuple[int, int, int, int], float]]:
         y_count = len(self.tiling)
         for y_index, y_tile in enumerate(self.tiling):
 
@@ -64,19 +68,20 @@ class SpriteCategory:
     source: Path
     mods: Set[str]
     treatment: SpriteTreatment
-    patterns: List[Path]
+    patterns: List[Tuple[Mod, Path]]
     excludes: List[str]
 
     @classmethod
-    def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]):
+    def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> 'SpriteCategory':
         """Read the sprite category to do from a yaml fragment."""
         definition = SAFE_PARSER.load(yaml_path)
         treatment = SpriteTreatment.from_yaml(definition.pop("treatment"))
         excludes = definition.pop("excludes", [])
 
-        patterns = []
+        patterns: List[Tuple[Mod, Path]] = []
+        mod_cache = {}
 
-        def parse_mod_patterns(path, node):
+        def parse_mod_patterns(path: Path, node: Any) -> Iterable[Path]:
             if node is None:
                 return [path / "**" / "*.png"]
 
@@ -95,20 +100,13 @@ class SpriteCategory:
                 )
             )
 
-        for mod, first_node in definition.items():
-            for mod_root in source_dirs:
-                mod_path = mod_root / mod
+        for mod_name, first_node in definition.items():
+            if mod_name not in mod_cache:
+                mod_cache[mod_name] = open_mod_read(mod_name, source_dirs)
 
-                # TODO: Mod could have version number, and/or be a zip file
-                if mod_path.exists():
-                    break
-            else:
-                raise Exception("Failed to find code for mod: %s" % mod)
+            mod = mod_cache[mod_name]
 
-            mod_patterns = [
-                (mod_path, mod, p.relative_to(mod_path))
-                for p in parse_mod_patterns(mod_path, first_node)
-            ]
+            mod_patterns = [(mod, p) for p in parse_mod_patterns(Path("."), first_node)]
             patterns.extend(mod_patterns)
 
         return cls(
@@ -119,17 +117,14 @@ class SpriteCategory:
             excludes=excludes,
         )
 
-    def sprite_paths(self):
+    def sprite_paths(self) -> Iterable[Tuple[Mod, str]]:
         """Yield all sprite paths matching this category."""
 
         yield from (
-            (sprite_path, Path(mod) / sprite_path.relative_to(mod_path))
+            (mod, sprite_path)
             # For each graphic directory we want recursively all png file
-            for mod_path, mod, pattern in self.patterns
-            for sprite_path in mod_path.glob(pattern.as_posix())
+            for mod, pattern in self.patterns
+            for sprite_path in mod.files(pattern)
             # But they should not match any of the excludes
-            if all(
-                exclude not in sprite_path.relative_to(mod_path).as_posix()
-                for exclude in self.excludes
-            )
+            if all(exclude not in sprite_path for exclude in self.excludes)
         )

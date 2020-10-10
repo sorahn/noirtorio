@@ -4,22 +4,29 @@ from pathlib import Path
 
 from functools import lru_cache
 from dataclasses import dataclass
-from PIL import Image
+from PIL import Image  # type: ignore
+from typing import List
 
 from factorio_noir.category import SpriteTreatment
+from factorio_noir.mod import LazyFile
 
 
-def process_sprite(source_path: Path, target_path: Path, treatment: SpriteTreatment):
+def process_sprite(
+    lazy_source_file: LazyFile,
+    target_file_path: Path,
+    treatment: SpriteTreatment,
+) -> None:
     """Process a sprite"""
 
-    target_path.parent.mkdir(exist_ok=True, parents=True)
+    target_file_path.parent.mkdir(exist_ok=True, parents=True)
 
-    sprite = Image.open(source_path).convert("RGBA")
-    processed_sprite = apply_transforms(
-        sprite,
-        treatment,
-    )
-    processed_sprite.save(target_path)
+    with lazy_source_file.open() as source_file:
+        sprite = Image.open(source_file).convert("RGBA")
+        processed_sprite = apply_transforms(
+            sprite,
+            treatment,
+        )
+        processed_sprite.save(target_file_path)
 
 
 @dataclass(eq=True, frozen=True)
@@ -31,7 +38,7 @@ class ColorSpace:
     Z: float
 
     @lru_cache()
-    def matrix(self, saturation, brightness):
+    def matrix(self, saturation: float, brightness: float) -> List[float]:
         """Return a color space matrix for given saturation and brightess."""
 
         # This matrix works by:
@@ -69,7 +76,7 @@ class ColorSpace:
 DEFAULT_COLORSPACE = ColorSpace(X=0.3086, Y=0.6094, Z=0.0820)
 
 
-def apply_transforms(image, treatment):
+def apply_transforms(image: Image, treatment: SpriteTreatment) -> Image:
     """Apply the needed transformations to the given image."""
     img_alpha = image.getchannel("A")
     img_rgb = image.convert("RGB")
