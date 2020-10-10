@@ -1,0 +1,16 @@
+treatment:
+  brightness: 0.8
+  saturation: 0.5
+
+base:
+  graphics:
+    entity:
+      beacon:
+        - beacon-module-slot
+
+    icons:
+      fluid:
+
+
+
+

@@ -88,4 +88,7 @@ excludes:
   - laser-body
   - charge
   - signal.png
-  - electric-pole-radius-visualization
+  - radius-visualization
+  - beacon-module-slot
+
+

@@ -63,4 +63,6 @@ FactorioExtended-Plus-Weaponry:
     technology:
     icons:
 
+excludes:
+  - mask
 

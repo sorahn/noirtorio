@@ -20,7 +20,7 @@ class SpriteTreatment:
     tiling: List[List[float]]
 
     @classmethod
-    def from_yaml(cls, yaml_fragment: Dict[str, Any]) -> 'SpriteTreatment':
+    def from_yaml(cls, yaml_fragment: Dict[str, Any]) -> "SpriteTreatment":
         """Read the sprite treatment to do from a yaml fragment."""
 
         # Tiling is read as a list of strings to make it be layed out graphically
@@ -72,7 +72,7 @@ class SpriteCategory:
     excludes: List[str]
 
     @classmethod
-    def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> 'SpriteCategory':
+    def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> "SpriteCategory":
         """Read the sprite category to do from a yaml fragment."""
         definition = SAFE_PARSER.load(yaml_path)
         treatment = SpriteTreatment.from_yaml(definition.pop("treatment"))

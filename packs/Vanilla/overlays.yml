@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.1
-  saturation: 1
+  brightness: 0.5
+  saturation: 0.7
 
 core:
   graphics:
@@ -12,4 +12,13 @@ core:
 base:
   graphics:
     entity:
-      - electric-pole-radius-visualization
+      small-electric-pole:
+        - electric-pole-radius-visualization
+      electric-mining-drill:
+        - electric-mining-drill-radius-visualization
+      pumpjack:
+        - pumpjack-radius-visualization
+      beacon:
+        - beacon-radius-visualization
+
+

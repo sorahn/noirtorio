@@ -1,0 +1,13 @@
+treatment:
+  saturation: 0.9
+  brightness: 0.7
+
+core:
+  graphics:
+    icons:
+      alerts:
+        fluid-icon-red.png:
+        ammo-icon-red.png:
+        fuel-icon-red.png:
+        electricity-icon-red.png:
+

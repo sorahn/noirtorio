@@ -11,11 +11,4 @@ base:
     icons:
 
 excludes:
-  - crude-oil.png
-  - heavy-oil.png
-  - light-oil.png
-  - lubricant.png
-  - steam.png
-  - petroleum-gas.png
-  - sulfuric-acid.png
-  - water.png
+  - fluid
