@@ -11,3 +11,4 @@ excludes:
   - red-wire
   - visualization
   - radius
+  - color_luts

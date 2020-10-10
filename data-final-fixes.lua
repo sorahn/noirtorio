@@ -19,11 +19,25 @@ checkData(data.raw)
 if config.is_vanilla then
 	-- desaturate the map
 	local function desaturate(c, bri, sat)
-		-- colors can be either named, on indexed. They also can be valued [0-1] or [0-255], but that doesn't matter for this maths
+		if c == nil then
+			return nil
+		end
+
+		-- colors can be either named, on indexed
 		r = c.r or c[1]
 		g = c.g or c[2]
 		b = c.b or c[3]
-		a = c.a or c[4] or 1
+		a = c.a or c[4]
+
+		-- They can also be valued [0-1] or [0-255]
+		if r > 1 or g > 1 or b > 1 or (a or 1) > 1 then
+			r = r / 255
+			g = g / 255
+			b = b / 255
+			if a ~= nil then
+				a = a / 255
+			end
+		end
 
 		-- Numbers taken from factorio's shader. Keep in sync with run-conversion.py
 		ret = {
@@ -32,6 +46,16 @@ if config.is_vanilla then
 			b = (r*(0.3086 - 0.3086*sat) + g*(0.6094 - 0.6094*sat) + b*(0.0820 + 0.9180*sat)) * bri,
 			a = a,
 		}
+
+		local max = math.max(ret.r, ret.g, ret.b)
+		if max > 1 then
+			-- we have been upscaled past the maximum brightness :(.
+			-- Reduce it down so factorio doesn't think we are using [0-255] colors
+			-- TODO: is this better than saturating the channel?
+			ret.r = ret.r / max
+			ret.g = ret.g / max
+			ret.b = ret.b / max
+		end
 
 		return ret
 	end
@@ -44,26 +68,20 @@ if config.is_vanilla then
 
 	for entity_group_name, entity_group in pairs(data.raw) do
 		for _, entity in pairs(entity_group) do
-			if entity.map_color ~= nil then
-				entity.map_color = desaturate(entity.map_color, 0.7, 0.1)
-			end
-
-			if entity.friendly_map_color ~= nil then
-				entity.friendly_map_color = desaturate(entity.friendly_map_color, 0.7, 0.1)
-			end
-
-			if entity.enemy_map_color ~= nil then
-				entity.enemy_map_color = desaturate(entity.enemy_map_color, 0.7, 0.1)
-			end
+			entity.map_color = desaturate(entity.map_color, 0.7, 0.1)
+			entity.friendly_map_color = desaturate(entity.friendly_map_color, 0.7, 0.1)
+			entity.enemy_map_color = desaturate(entity.enemy_map_color, 0.7, 0.1)
 
 			-- fixup the drawing of water
+			entity.effect_color = desaturate(entity.effect_color, 0.5, 0.6)
+			entity.effect_color_secondary = desaturate(entity.effect_color_secondary, 0.5, 0.6)
 			if entity.foam_color ~= nil then
-				entity.foam_color = desaturate(entity.foam_color, 0.7, 0.1)
+				entity.foam_color = desaturate(entity.foam_color, 0.5, 0.6)
 
 				-- since we have made the tiles darker, we also must drop all of the thresholds
-				scale_table(entity.dark_threshold, 0.7)
-				scale_table(entity.reflection_threshold, 0.7)
-				scale_table(entity.specular_threshold, 0.7)
+				scale_table(entity.dark_threshold, 0.5)
+				scale_table(entity.reflection_threshold, 0.5)
+				scale_table(entity.specular_threshold, 0.5)
 			end
 		end
 	end

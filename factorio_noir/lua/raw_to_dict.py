@@ -15,8 +15,10 @@ UNARY_OP_TABLE = {
     lua.ULNotOp: operator.not_,
 }
 
+
 class LuaDictVisitor:
     """Converts a table declaration into a python dict """
+
     @visitor(lua.Nil)
     def visit(self, node):
         return None
@@ -62,7 +64,8 @@ class LuaDictVisitor:
             table[self.visit(field.key)] = self.visit(field.value)
         return table
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("Parsing raw.txt, this will take a while")
     with open("raw.txt") as f:
         root = luaparser.ast.parse(f.read())

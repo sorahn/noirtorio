@@ -17,8 +17,7 @@ def process_sprite(source_path: Path, target_path: Path, treatment: SpriteTreatm
     sprite = Image.open(source_path).convert("RGBA")
     processed_sprite = apply_transforms(
         sprite,
-        saturation=treatment.saturation,
-        brightness=treatment.brightness,
+        treatment,
     )
     processed_sprite.save(target_path)
 
@@ -47,7 +46,6 @@ class ColorSpace:
         #     image[b] = (0*r + 0*g + 1*b + 0*a) = b
         #     # This leaves the image unchanged
 
-
         saturated_matrix = [
             self.X + (1 - self.X) * saturation,
             self.Y * (1 - saturation),
@@ -71,15 +69,27 @@ class ColorSpace:
 DEFAULT_COLORSPACE = ColorSpace(X=0.3086, Y=0.6094, Z=0.0820)
 
 
-def apply_transforms(image, saturation, brightness):
+def apply_transforms(image, treatment):
     """Apply the needed transformations to the given image."""
     img_alpha = image.getchannel("A")
     img_rgb = image.convert("RGB")
 
-    color_space = DEFAULT_COLORSPACE.matrix(saturation, brightness)
+    color_space = DEFAULT_COLORSPACE.matrix(treatment.saturation, treatment.brightness)
 
     img_converted = img_rgb.convert("RGB", color_space)
+
+    for bounding_box, tile_strength in treatment.tiles(image.width, image.height):
+        if tile_strength == 1:
+            # we are wanting this tile left untouched
+            continue
+
+        image_box = img_rgb.crop(bounding_box)
+        converted_box = img_converted.crop(bounding_box)
+
+        blended_box = Image.blend(image_box, converted_box, tile_strength)
+
+        img_converted.paste(blended_box, bounding_box)
+
     img_converted.putalpha(img_alpha)
 
     return img_converted
-

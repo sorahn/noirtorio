@@ -15,14 +15,46 @@ class SpriteTreatment:
 
     saturation: float
     brightness: float
+    tiling: List[List[float]]
 
     @classmethod
     def from_yaml(cls, yaml_fragment: Dict[str, float]):
         """Read the sprite treatment to do from a yaml fragment."""
+
+        # Tiling is read as a list of strings to make it be layed out graphically
+        tiling = [
+            [float(t) for t in row.split()]
+            for row in yaml_fragment.get("tiling", ["1"])
+        ]
+
+        assert len(tiling) > 0, "tiling must have at least 1 row"
+        for row in tiling:
+            assert len(row) > 0, "tiling must have at least 1 column"
+
         return cls(
             saturation=yaml_fragment["saturation"],
             brightness=yaml_fragment["brightness"],
+            tiling=tiling,
         )
+
+    def tiles(self, width, height):
+        y_count = len(self.tiling)
+        for y_index, y_tile in enumerate(self.tiling):
+
+            x_count = len(y_tile)
+            for x_index, tile_strength in enumerate(y_tile):
+
+                # Doing multiplication before devision here to make sure rounding is correct
+                bounding_box = (
+                    # from (x1, y1)
+                    int(width * x_index / x_count),
+                    int(height * y_index / y_count),
+                    # to (x2, y2)
+                    int(width * (x_index + 1) / x_count),
+                    int(height * (y_index + 1) / y_count),
+                )
+
+                yield bounding_box, tile_strength
 
 
 @attr.s(auto_attribs=True)
@@ -73,7 +105,10 @@ class SpriteCategory:
             else:
                 raise Exception("Failed to find code for mod: %s" % mod)
 
-            mod_patterns = [(mod_path, mod, p.relative_to(mod_path)) for p in parse_mod_patterns(mod_path, first_node)]
+            mod_patterns = [
+                (mod_path, mod, p.relative_to(mod_path))
+                for p in parse_mod_patterns(mod_path, first_node)
+            ]
             patterns.extend(mod_patterns)
 
         return cls(
@@ -83,7 +118,6 @@ class SpriteCategory:
             patterns=patterns,
             excludes=excludes,
         )
-
 
     def sprite_paths(self):
         """Yield all sprite paths matching this category."""
