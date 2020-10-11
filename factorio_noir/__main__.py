@@ -10,7 +10,6 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-
 from typing import List, Optional
 
 import click
@@ -83,15 +82,36 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 @click.argument(
     "pack-dir",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
+    nargs=-1,
 )
+@click.pass_context
 def cli(
-    pack_dir: Path,
+    ctx: click.Context,
+    pack_dir: List[Path],
     dev: bool,
     pack_version: str,
     factorio_data: Optional[Path],
     factorio_mods: Optional[Path],
     target: Optional[Path],
 ):
+    if len(pack_dir) == 0:
+        click.secho("At least one path to a pack is needed", fg="red")
+        raise click.Abort()
+
+    if len(pack_dir) > 1:
+        for p in pack_dir:
+            ctx.invoke(
+                cli,
+                pack_dir=[p],
+                dev=dev,
+                pack_version=pack_version,
+                factorio_data=factorio_data,
+                factorio_mods=factorio_mods,
+                target=target,
+            )
+        return
+
+    pack_dir = pack_dir[0]
     is_vanilla = Path(pack_dir).name.lower() == "vanilla"
 
     pack_name = "factorio-noir"
