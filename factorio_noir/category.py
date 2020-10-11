@@ -99,6 +99,7 @@ class SpriteCategory:
     treatment: SpriteTreatment
     patterns: List[Tuple[Mod, Path]]
     excludes: List[str]
+    includes: List[str]
 
     @classmethod
     def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> "SpriteCategory":
@@ -115,6 +116,7 @@ class SpriteCategory:
             raise click.Abort()
 
         excludes = definition.pop("excludes", [])
+        includes = definition.pop("includes", [])
 
         patterns: List[Tuple[Mod, Path]] = []
         mod_cache = {}
@@ -153,6 +155,7 @@ class SpriteCategory:
             treatment=treatment,
             patterns=patterns,
             excludes=excludes,
+            includes=includes,
         )
 
     def sprite_paths(self) -> Iterable[Tuple[Mod, str]]:
@@ -168,6 +171,11 @@ class SpriteCategory:
                 # But they should not match any of the excludes
                 if any(exclude in sprite_path for exclude in self.excludes):
                     continue
+
+                if len(self.includes) > 0:
+                    # They must contain an include
+                    if all(include not in sprite_path for include in self.includes):
+                        continue
 
                 pattern_used = True
                 yield mod, sprite_path

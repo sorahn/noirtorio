@@ -1,0 +1,47 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+FactorioExtended-Plus-Core:
+  graphics:
+    icons:
+
+FactorioExtended-Plus-Equipment:
+  graphics:
+    icons:
+
+FactorioExtended-Plus-Logistics:
+  graphics:
+    entity:
+
+FactorioExtended-Plus-Machines:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Module:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Power:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Transport:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Weaponry:
+  graphics:
+    entity:
+    icons:
+
+includes:
+  - mk2
+
+excludes:
+  - mask

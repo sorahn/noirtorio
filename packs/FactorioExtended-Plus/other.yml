@@ -1,0 +1,50 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+FactorioExtended-Plus-CompoundSolars:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Core:
+  graphics:
+    technology:
+    icons:
+    group:
+
+FactorioExtended-Plus-Machines:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Module:
+  graphics:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Power:
+  graphics:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Storage:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Transport:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Weaponry:
+  graphics:
+    entity:
+    icons:
+
+excludes:
+  - mask
+  - mk1
+  - mk2
+  - mk3

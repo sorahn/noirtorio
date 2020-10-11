@@ -1,0 +1,14 @@
+treatment:
+  brightness: 70%
+  saturation: 20%
+
+FactorioExtended-Plus-Transport:
+  graphics:
+    entity:
+    icons:
+
+includes:
+  - mk1
+
+excludes:
+  - mask
