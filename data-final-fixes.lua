@@ -83,6 +83,16 @@ if config.is_vanilla then
 				scale_table(entity.reflection_threshold, 0.5)
 				scale_table(entity.specular_threshold, 0.5)
 			end
+
+			-- move some alt-mode module locations
+			if type(entity.name) == "string" and entity.module_specification ~= nil then
+				if entity.name:sub(1, #"chemical-plant") == "chemical-plant" then
+					entity.module_specification.module_info_icon_shift = {0, -1.0}
+				end
+				if entity.name:sub(1, #"electric-furnace") == "electric-furnace" then
+					entity.module_specification.module_info_icon_shift = {0, -0.9}
+				end
+			end
 		end
 	end
 
@@ -98,5 +108,6 @@ if config.is_vanilla then
 	desaturate_table(data.raw["utility-constants"].default.chart, 0.7, 0.1, "_color")
 	desaturate_table(data.raw["utility-constants"].default.chart.default_color_by_type, 0.7, 0.1)
 	desaturate_table(data.raw["utility-constants"].default.chart.default_friendly_color_by_type, 0.7, 0.1)
+
 end
 
