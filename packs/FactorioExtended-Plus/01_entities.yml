@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.7
-  saturation: 0.5
+  brightness: 70%
+  saturation: 50%
 
 FactorioExtended-Plus-CompoundSolars:
   graphics:
@@ -38,7 +38,7 @@ FactorioExtended-Plus-Module:
     entity:
     technology:
     icons:
-      
+
 FactorioExtended-Plus-Power:
   graphics:
     entity:
@@ -65,4 +65,3 @@ FactorioExtended-Plus-Weaponry:
 
 excludes:
   - mask
-

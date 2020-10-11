@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.5
-  saturation: 0.7
+  brightness: 50%
+  saturation: 70%
 
 core:
   graphics:
@@ -20,5 +20,3 @@ base:
         - pumpjack-radius-visualization
       beacon:
         - beacon-radius-visualization
-
-

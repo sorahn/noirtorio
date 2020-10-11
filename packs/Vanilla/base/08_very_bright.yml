@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.8
-  saturation: 0.5
+  brightness: 80%
+  saturation: 50%
 
 base:
   graphics:
@@ -10,7 +10,3 @@ base:
 
     icons:
       fluid:
-
-
-
-

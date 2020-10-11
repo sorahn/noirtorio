@@ -1,47 +1,71 @@
 """A sprite category described in a YAML file."""
 import itertools
+import pprint
 from pathlib import Path
-from typing import Dict, List, Set, Any, Tuple, Iterable, Union
+from typing import Any, Dict, Iterable, List, Set, Tuple, Union
 
 import attr
+import click
+from attr import converters
 from ruamel.yaml import YAML  # type: ignore
 
-from factorio_noir.mod import open_mod_read, Mod
+from factorio_noir.mod import Mod, open_mod_read
 
 SAFE_PARSER = YAML(typ="safe")
+
+
+def _float_or_percent(val):
+    """Parse a percent string (XX%) to float if possible."""
+    if isinstance(val, float):
+        return val
+
+    if not isinstance(val, str) or not val.endswith("%"):
+        raise ValueError(f"{val} is neither a float of a percent value")
+
+    return float(val[:-1]) / 100
+
+
+def _validate_tiling(inst, attr, value):
+    """Ensure tiling is valid."""
+    if len(value) == 0:
+        raise ValueError("Tiling must have at least 1 row")
+
+    if any(len(t) == 0 for t in value):
+        raise ValueError("Tiling must have at least 1 column")
+
+    if min(len(t) for t in value) != max(len(t) for t in value):
+        raise ValueError("Tiling must have the same number of column for each row.")
+
+
+TileSet = Iterable[Tuple[Tuple[int, int, int, int], float]]
 
 
 @attr.s(auto_attribs=True)
 class SpriteTreatment:
     """Describe the treatment to execute on a given sprite."""
 
-    saturation: float
-    brightness: float
-    tiling: List[List[float]]
+    saturation: float = attr.ib(converter=_float_or_percent)
+    brightness: float = attr.ib(converter=_float_or_percent)
+    tiling: List[List[float]] = attr.ib(
+        # Tiling is read as a list of strings to make it be layed out graphically
+        converter=[
+            attr.converters.default_if_none(factory=lambda: ["1"]),
+            lambda val: [[float(t) for t in row.split()] for row in val],
+        ],
+        validator=[_validate_tiling],
+    )
 
     @classmethod
     def from_yaml(cls, yaml_fragment: Dict[str, Any]) -> "SpriteTreatment":
         """Read the sprite treatment to do from a yaml fragment."""
-
-        # Tiling is read as a list of strings to make it be layed out graphically
-        tiling = [
-            [float(t) for t in row.split()]
-            for row in yaml_fragment.get("tiling", ["1"])
-        ]
-
-        assert len(tiling) > 0, "tiling must have at least 1 row"
-        for row in tiling:
-            assert len(row) > 0, "tiling must have at least 1 column"
-
         return cls(
             saturation=yaml_fragment["saturation"],
             brightness=yaml_fragment["brightness"],
-            tiling=tiling,
+            tiling=yaml_fragment.get("tiling"),
         )
 
-    def tiles(
-        self, width: int, height: int
-    ) -> Iterable[Tuple[Tuple[int, int, int, int], float]]:
+    def tiles(self, width: int, height: int) -> TileSet:
+        """Yield each tile in the sprite, with the given strength to apply."""
         y_count = len(self.tiling)
         for y_index, y_tile in enumerate(self.tiling):
 
@@ -75,7 +99,16 @@ class SpriteCategory:
     def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> "SpriteCategory":
         """Read the sprite category to do from a yaml fragment."""
         definition = SAFE_PARSER.load(yaml_path)
-        treatment = SpriteTreatment.from_yaml(definition.pop("treatment"))
+        try:
+            treatment = SpriteTreatment.from_yaml(definition.pop("treatment"))
+        except ValueError as e:
+            click.secho(f"Invalid value for treatment in {yaml_path}:", fg="red")
+            click.secho(f"  - {e}", fg="red")
+            raise click.Abort()
+        except KeyError as e:
+            click.secho(f"Missing key {e} in treatment of {yaml_path}", fg="red")
+            raise click.Abort()
+
         excludes = definition.pop("excludes", [])
 
         patterns: List[Tuple[Mod, Path]] = []
@@ -119,7 +152,6 @@ class SpriteCategory:
 
     def sprite_paths(self) -> Iterable[Tuple[Mod, str]]:
         """Yield all sprite paths matching this category."""
-
         yield from (
             (mod, sprite_path)
             # For each graphic directory we want recursively all png file

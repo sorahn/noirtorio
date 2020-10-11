@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.5
-  saturation: 0.1
+  brightness: 50%
+  saturation: 10%
 
 base:
   graphics:

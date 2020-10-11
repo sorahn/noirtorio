@@ -1,7 +1,6 @@
 treatment:
-  brightness: 0.7
-  saturation: 0.3
+  brightness: 70%
+  saturation: 30%
 
 alien-module:
   graphics:
-

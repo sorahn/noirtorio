@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.5
-  saturation: 0.6
+  brightness: 50%
+  saturation: 60%
 
 base:
   graphics:
@@ -22,4 +22,3 @@ excludes:
   - water-transitions
   - out-of-map-transition
   - water-noise
-

@@ -1,6 +1,6 @@
 treatment:
-  saturation: 0.1
-  brightness: 0.7
+  brightness: 70%
+  saturation: 10%
 
 core:
   graphics:
@@ -16,5 +16,3 @@ excludes:
   - ammo-icon-red.png
   - fuel-icon-red.png
   - electricity-icon-red.png
-
-
