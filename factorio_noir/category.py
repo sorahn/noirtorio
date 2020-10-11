@@ -2,7 +2,7 @@
 import itertools
 import pprint
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Set, Tuple, Union, Optional
 
 import attr
 import click
@@ -14,7 +14,7 @@ from factorio_noir.mod import Mod, open_mod_read
 SAFE_PARSER = YAML(typ="safe")
 
 
-def _float_or_percent(val):
+def _float_or_percent(val: Union[float, str]) -> float:
     """Parse a percent string (XX%) to float if possible."""
     if isinstance(val, float):
         return val
@@ -25,7 +25,7 @@ def _float_or_percent(val):
     return float(val[:-1]) / 100
 
 
-def _validate_tiling(inst, attr, value):
+def _validate_tiling(inst: Any, attr: Any, value: List[List[float]]) -> None:
     """Ensure tiling is valid."""
     if len(value) == 0:
         raise ValueError("Tiling must have at least 1 row")
@@ -35,6 +35,15 @@ def _validate_tiling(inst, attr, value):
 
     if min(len(t) for t in value) != max(len(t) for t in value):
         raise ValueError("Tiling must have the same number of column for each row.")
+
+
+def _parse_tiling(value: Optional[List[str]]) -> List[List[float]]:
+    # Tiling is read as a list of strings to make it be layed out graphically
+
+    if value is None:
+        return [[1.0]]
+    else:
+        return [[float(t) for t in row.split()] for row in value]
 
 
 TileSet = Iterable[Tuple[Tuple[int, int, int, int], float]]
@@ -47,12 +56,8 @@ class SpriteTreatment:
     saturation: float = attr.ib(converter=_float_or_percent)
     brightness: float = attr.ib(converter=_float_or_percent)
     tiling: List[List[float]] = attr.ib(
-        # Tiling is read as a list of strings to make it be layed out graphically
-        converter=[
-            attr.converters.default_if_none(factory=lambda: ["1"]),
-            lambda val: [[float(t) for t in row.split()] for row in val],
-        ],
-        validator=[_validate_tiling],
+        converter=_parse_tiling,
+        validator=_validate_tiling,
     )
 
     @classmethod

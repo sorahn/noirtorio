@@ -61,8 +61,8 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
     help="Factorio install directory, needed only if packaging Vanilla pack.\n"
-    f"Default: {DEFAULT_FACTORIO_DIR}",  # type: ignore
-    envvar="FACTORIO_DATA",
+    f"Default: {DEFAULT_FACTORIO_DIR}",
+    envvar="FACTORIO_DATA",  # type: ignore
     default=DEFAULT_FACTORIO_DIR,
 )
 @click.option(
@@ -80,29 +80,29 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
     envvar="FACTORIO_NOIR_TARGET",
 )
 @click.argument(
-    "pack-dir",
+    "pack-dirs",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
     nargs=-1,
 )
 @click.pass_context
 def cli(
     ctx: click.Context,
-    pack_dir: List[Path],
+    pack_dirs: List[Path],
     dev: bool,
     pack_version: str,
     factorio_data: Optional[Path],
     factorio_mods: Optional[Path],
     target: Optional[Path],
 ):
-    if len(pack_dir) == 0:
+    if len(pack_dirs) == 0:
         click.secho("At least one path to a pack is needed", fg="red")
         raise click.Abort()
 
-    if len(pack_dir) > 1:
-        for p in pack_dir:
+    if len(pack_dirs) > 1:
+        for p in pack_dirs:
             ctx.invoke(
                 cli,
-                pack_dir=[p],
+                pack_dirs=[p],
                 dev=dev,
                 pack_version=pack_version,
                 factorio_data=factorio_data,
@@ -111,7 +111,7 @@ def cli(
             )
         return
 
-    pack_dir = pack_dir[0]
+    pack_dir = pack_dirs[0]
     is_vanilla = Path(pack_dir).name.lower() == "vanilla"
 
     pack_name = "factorio-noir"
