@@ -4,12 +4,13 @@ treatment:
 
 base:
   graphics:
-    biter:
-    spawner:
-    spitter:
-    worm:
-    artillery-turret:
-    artillery-wagon:
+    entity:
+      biter:
+      spawner:
+      spitter:
+      worm:
+      artillery-turret:
+      artillery-wagon:
 
 excludes:
   - shadow
