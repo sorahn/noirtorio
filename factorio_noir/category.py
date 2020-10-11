@@ -157,11 +157,27 @@ class SpriteCategory:
 
     def sprite_paths(self) -> Iterable[Tuple[Mod, str]]:
         """Yield all sprite paths matching this category."""
-        yield from (
-            (mod, sprite_path)
-            # For each graphic directory we want recursively all png file
-            for mod, pattern in self.patterns
-            for sprite_path in mod.files(pattern)
-            # But they should not match any of the excludes
-            if all(exclude not in sprite_path for exclude in self.excludes)
-        )
+
+        missed_patterns = []
+
+        # For each graphic directory we want recursively all png file
+        for mod, pattern in self.patterns:
+            pattern_used = False
+
+            for sprite_path in mod.files(pattern):
+                # But they should not match any of the excludes
+                if any(exclude in sprite_path for exclude in self.excludes):
+                    continue
+
+                pattern_used = True
+                yield mod, sprite_path
+
+            if not pattern_used:
+                missed_patterns.append(f"__{mod.name}__/{pattern}")
+
+        if len(missed_patterns) > 0:
+            click.secho(
+                f"Warning: Resources with no match in file {self.source}:\n    "
+                + "\n    ".join(missed_patterns),
+                fg="yellow",
+            )

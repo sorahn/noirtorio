@@ -78,7 +78,9 @@ excludes:
   - heated
   - light
   - fire
-  - flame
+  - jet-flame
+  - fire-flame
+  - fire-stream
   - mask
   - green
   - liquid
