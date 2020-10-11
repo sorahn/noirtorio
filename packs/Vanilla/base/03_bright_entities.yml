@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.7
-  saturation: 0.1
+  brightness: 70%
+  saturation: 10%
 
 base:
   graphics:
@@ -25,7 +25,6 @@ base:
       transport-belt:
       underground-belt:
       logistic-chest:
-
 
 excludes:
   - shadow

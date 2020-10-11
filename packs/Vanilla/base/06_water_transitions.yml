@@ -1,6 +1,6 @@
 treatment:
-  brightness: 0.5
-  saturation: 0.6
+  brightness: 50%
+  saturation: 60%
   tiling:
     - 1 1 0
 
@@ -8,4 +8,3 @@ base:
   graphics:
     terrain:
       water-transitions:
-
