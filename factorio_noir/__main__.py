@@ -55,14 +55,14 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 
 
 @click.command()
-@click.option("--pack-version")
+@click.option("--pack-version", default="0.0.1")
 @click.option("--dev", is_flag=True, envvar="DEV")
 @click.option(
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
     help="Factorio install directory, needed only if packaging Vanilla pack.\n"
-    f"Default: {DEFAULT_FACTORIO_DIR}",  # type: ignore
-    envvar="FACTORIO_DATA",
+    f"Default: {DEFAULT_FACTORIO_DIR}",
+    envvar="FACTORIO_DATA",  # type: ignore
     default=DEFAULT_FACTORIO_DIR,
 )
 @click.option(
@@ -76,33 +76,33 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 @click.option(
     "--target",
     type=click.Path(dir_okay=True, file_okay=True, readable=True),
-    help="The output directory/zip that should be used",
+    help="The output directory/zip that should be used.\nDefault: <factorio-mods>/",
     envvar="FACTORIO_NOIR_TARGET",
 )
 @click.argument(
-    "pack-dir",
+    "pack-dirs",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
     nargs=-1,
 )
 @click.pass_context
 def cli(
     ctx: click.Context,
-    pack_dir: List[Path],
+    pack_dirs: List[Path],
     dev: bool,
     pack_version: str,
     factorio_data: Optional[Path],
     factorio_mods: Optional[Path],
     target: Optional[Path],
 ):
-    if len(pack_dir) == 0:
+    if len(pack_dirs) == 0:
         click.secho("At least one path to a pack is needed", fg="red")
         raise click.Abort()
 
-    if len(pack_dir) > 1:
-        for p in pack_dir:
+    if len(pack_dirs) > 1:
+        for p in pack_dirs:
             ctx.invoke(
                 cli,
-                pack_dir=[p],
+                pack_dirs=[p],
                 dev=dev,
                 pack_version=pack_version,
                 factorio_data=factorio_data,
@@ -111,41 +111,12 @@ def cli(
             )
         return
 
-    pack_dir = pack_dir[0]
+    pack_dir = pack_dirs[0]
     is_vanilla = Path(pack_dir).name.lower() == "vanilla"
 
     pack_name = "factorio-noir"
     if not is_vanilla:
         pack_name += f"-{Path(pack_dir).name}"
-
-    if dev is True:
-        if target is not None:
-            target_dir: Path = Path(target_dir)
-        else:
-            # for JD h4x
-            # target_dir = MOD_ROOT / ".." / "mods" / pack_name
-            target_dir = MOD_ROOT / "dist" / "dev" / pack_name
-
-        click.secho(
-            f"Using dev directory: {target_dir.relative_to(Path.cwd())}", fg="blue"
-        )
-        if target_dir.exists() and not target_dir.is_dir():
-            click.secho("  - Not a directory, deleting it", fg="yellow")
-            target_dir.unlink()
-        elif target_dir.exists():
-            click.secho("  - Emptying directory", fg="yellow")
-            for f in target_dir.iterdir():
-                if f.is_file():
-                    f.unlink()
-                else:
-                    shutil.rmtree(f)
-
-        target_dir.mkdir(exist_ok=True, parents=True)
-
-    else:
-        target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
-        target_dir.mkdir(exist_ok=True, parents=True)
-        click.echo(f"Created temporary directory: {target_dir}")
 
     mods_dirs = []
     if is_vanilla:
@@ -173,10 +144,48 @@ def cli(
             )
             raise click.Abort
 
+        click.secho(f"Using factorio data directory: {factorio_data}", fg="blue")
         mods_dirs.append(factorio_data)
 
     if factorio_mods is not None:
+        click.secho(f"Using mods directory: {factorio_mods}", fg="blue")
         mods_dirs.append(Path(factorio_mods))
+
+    if target is not None:
+        final_target_dir = Path(target) / pack_name
+    elif factorio_mods is not None:
+        final_target_dir = Path(factorio_mods) / pack_name
+    else:
+        click.secho(
+            f"Either --factorio-mods or --target must be supplied.",
+            fg="red",
+        )
+        raise click.Abort
+
+    click.secho(f"Using final target dir: {final_target_dir}", fg="blue")
+
+    if dev is True:
+        target_dir = final_target_dir
+
+        click.secho(f"Using dev directory: {target_dir}", fg="blue")
+
+        if target_dir.exists() and not target_dir.is_dir():
+            click.secho("  - Not a directory, deleting it", fg="yellow")
+            target_dir.unlink()
+        elif target_dir.exists():
+            click.secho("  - Emptying directory", fg="yellow")
+            for f in target_dir.iterdir():
+                if f.is_file():
+                    f.unlink()
+                else:
+                    shutil.rmtree(f)
+
+        target_dir.mkdir(exist_ok=True, parents=True)
+
+    else:
+        target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
+        target_dir.mkdir(exist_ok=True, parents=True)
+        click.echo(f"Created temporary directory: {target_dir}")
 
     gen_pack_files(
         pack_dir,
@@ -191,10 +200,7 @@ def cli(
         return
 
     click.echo("Making ZIP package")
-    if target is not None:
-        zip_loc = Path(target)
-    else:
-        zip_loc = MOD_ROOT / "dist" / f"{pack_name}_{pack_version}"
+    zip_loc = final_target_dir.parent / f"{pack_name}_{pack_version}"
 
     zip_loc.parent.mkdir(parents=True, exist_ok=True)
     archive_name = shutil.make_archive(
@@ -204,7 +210,7 @@ def cli(
         base_dir=target_dir.name,
     )
     click.secho(
-        f"Created archive for pack: {Path(archive_name).relative_to(Path.cwd())}",
+        f"Created archive for pack: {archive_name}",
         fg="green",
     )
     click.secho("Removing temp dir, and cleaning up.", fg="yellow")

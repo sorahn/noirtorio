@@ -10,7 +10,6 @@ base:
       stone:
       coal:
       uranium-ore:
-      technology:
 
 excludes:
   - glow
