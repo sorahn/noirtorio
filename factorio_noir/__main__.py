@@ -23,14 +23,16 @@ MOD_ROOT = Path(__file__).parent.parent.resolve()
 
 VANILLA_MODS = {"core", "base"}
 DEFAULT_FACTORIO_DIRS = [
+    str(MOD_ROOT.parent / "data"),
     "~/.local/share/Steam/steamapps/common/Factorio/data/",
     "/Applications/factorio.app/Contents/data/",
-    "~/Library/Application Support/Steam/steamapps/common/Factorio/factorio.app/Contents/data/"
+    "~/Library/Application Support/Steam/steamapps/common/Factorio/factorio.app/Contents/data/",
     "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Factorio\\data\\",
     "C:\\Program Files\\Factorio\\data\\",
 ]
 
 DEFAULT_MODS_DIRS = [
+    str(MOD_ROOT.parent / "mods"),
     "~/.factorio/mods/",
     "~/Library/Application Support/factorio/mods/",
     # 'C:\Program Files (x86)\Steam\userdata\[user number]\427520\remote',
@@ -125,18 +127,11 @@ def cli(
         target_dir.mkdir(exist_ok=True, parents=True)
         click.echo(f"Created temporary directory: {target_dir}")
 
+    mods_dirs = []
     if is_vanilla:
         if factorio_data is None:
             click.secho(
                 "Missing --factorio-data value, required for editing vanilla graphics.",
-                fg="red",
-            )
-            raise click.Abort
-
-        factorio_data = Path(factorio_data)
-        if any(not (factorio_data / mod).exists() for mod in VANILLA_MODS):
-            click.secho(
-                f"{factorio_data} is not a valid factorio data directory.",
                 fg="red",
             )
             raise click.Abort
@@ -149,9 +144,23 @@ def cli(
             )
             raise click.Abort
 
+    if factorio_data is not None:
+        factorio_data = Path(factorio_data)
+        if any(not (factorio_data / mod).exists() for mod in VANILLA_MODS):
+            click.secho(
+                f"{factorio_data} is not a valid factorio data directory.",
+                fg="red",
+            )
+            raise click.Abort
+
+        mods_dirs.append(factorio_data)
+
+    if factorio_mods is not None:
+        mods_dirs.append(Path(factorio_mods))
+
     gen_pack_files(
         pack_dir,
-        [Path(factorio_data), Path(factorio_mods)],  # type: ignore
+        mods_dirs,
         target_dir,
         pack_name,
         pack_version,
