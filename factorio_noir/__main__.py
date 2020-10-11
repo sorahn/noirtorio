@@ -55,7 +55,7 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 
 
 @click.command()
-@click.option("--pack-version")
+@click.option("--pack-version", default="0.0.1")
 @click.option("--dev", is_flag=True, envvar="DEV")
 @click.option(
     "--factorio-data",
@@ -76,7 +76,7 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 @click.option(
     "--target",
     type=click.Path(dir_okay=True, file_okay=True, readable=True),
-    help="The output directory/zip that should be used",
+    help="The output directory/zip that should be used.\nDefault: <factorio-mods>/",
     envvar="FACTORIO_NOIR_TARGET",
 )
 @click.argument(
@@ -118,35 +118,6 @@ def cli(
     if not is_vanilla:
         pack_name += f"-{Path(pack_dir).name}"
 
-    if dev is True:
-        if target is not None:
-            target_dir: Path = Path(target_dir)
-        else:
-            # for JD h4x
-            # target_dir = MOD_ROOT / ".." / "mods" / pack_name
-            target_dir = MOD_ROOT / "dist" / "dev" / pack_name
-
-        click.secho(
-            f"Using dev directory: {target_dir.relative_to(Path.cwd())}", fg="blue"
-        )
-        if target_dir.exists() and not target_dir.is_dir():
-            click.secho("  - Not a directory, deleting it", fg="yellow")
-            target_dir.unlink()
-        elif target_dir.exists():
-            click.secho("  - Emptying directory", fg="yellow")
-            for f in target_dir.iterdir():
-                if f.is_file():
-                    f.unlink()
-                else:
-                    shutil.rmtree(f)
-
-        target_dir.mkdir(exist_ok=True, parents=True)
-
-    else:
-        target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
-        target_dir.mkdir(exist_ok=True, parents=True)
-        click.echo(f"Created temporary directory: {target_dir}")
-
     mods_dirs = []
     if is_vanilla:
         if factorio_data is None:
@@ -173,10 +144,48 @@ def cli(
             )
             raise click.Abort
 
+        click.secho(f"Using factorio data directory: {factorio_data}", fg="blue")
         mods_dirs.append(factorio_data)
 
     if factorio_mods is not None:
+        click.secho(f"Using mods directory: {factorio_mods}", fg="blue")
         mods_dirs.append(Path(factorio_mods))
+
+    if target is not None:
+        final_target_dir = Path(target) / pack_name
+    elif factorio_mods is not None:
+        final_target_dir = Path(factorio_mods) / pack_name
+    else:
+        click.secho(
+            f"Either --factorio-mods or --target must be supplied.",
+            fg="red",
+        )
+        raise click.Abort
+
+    click.secho(f"Using final target dir: {final_target_dir}", fg="blue")
+
+    if dev is True:
+        target_dir = final_target_dir
+
+        click.secho(f"Using dev directory: {target_dir}", fg="blue")
+
+        if target_dir.exists() and not target_dir.is_dir():
+            click.secho("  - Not a directory, deleting it", fg="yellow")
+            target_dir.unlink()
+        elif target_dir.exists():
+            click.secho("  - Emptying directory", fg="yellow")
+            for f in target_dir.iterdir():
+                if f.is_file():
+                    f.unlink()
+                else:
+                    shutil.rmtree(f)
+
+        target_dir.mkdir(exist_ok=True, parents=True)
+
+    else:
+        target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
+        target_dir.mkdir(exist_ok=True, parents=True)
+        click.echo(f"Created temporary directory: {target_dir}")
 
     gen_pack_files(
         pack_dir,
@@ -191,10 +200,7 @@ def cli(
         return
 
     click.echo("Making ZIP package")
-    if target is not None:
-        zip_loc = Path(target)
-    else:
-        zip_loc = MOD_ROOT / "dist" / f"{pack_name}_{pack_version}"
+    zip_loc = final_target_dir.parent / f"{pack_name}_{pack_version}"
 
     zip_loc.parent.mkdir(parents=True, exist_ok=True)
     archive_name = shutil.make_archive(
@@ -204,7 +210,7 @@ def cli(
         base_dir=target_dir.name,
     )
     click.secho(
-        f"Created archive for pack: {Path(archive_name).relative_to(Path.cwd())}",
+        f"Created archive for pack: {archive_name}",
         fg="green",
     )
     click.secho("Removing temp dir, and cleaning up.", fg="yellow")
