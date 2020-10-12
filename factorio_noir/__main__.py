@@ -271,9 +271,7 @@ def gen_pack_files(
     with sprite_processor(process_sprite) as submit:
         with click.progressbar(categories, label="Make sprites tasks") as progress:
             for category in progress:
-                for mod, sprite_path in category.sprite_paths():
-                    lua_path = f"__{mod.name}__/{sprite_path}"
-
+                for lazy_source_file, lua_path in category.sprite_files():
                     if lua_path in marked_for_processing:
                         click.echo()
                         click.secho(
@@ -289,8 +287,8 @@ def gen_pack_files(
                     # We want lazy access to the file because contextmanager seralizes
                     # the file with pickel
                     submit(
-                        lazy_source_file=mod.lazy_file(sprite_path),
-                        target_file_path=target_dir / "data" / mod.name / sprite_path,
+                        lazy_source_file=lazy_source_file,
+                        target_file_path=target_dir / "data" / lua_path,
                         treatment=category.treatment,
                     )
 
