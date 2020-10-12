@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import IO, Iterable, List, Optional, Tuple
+from typing import IO, Iterable, List, Optional, Tuple, Set, Dict
 import zipfile
 
 
@@ -24,54 +24,55 @@ class LazyFile:
 
 
 class Mod:
-    # For typing
-
-    name: str
-
-    def files(self, filter: Path) -> Iterable[str]:
-        pass
-
-    def lazy_file(self, path: str) -> LazyFile:
-        pass
-
-
-class FileMod(Mod):
     mod_path: Path
+    all_files: Set[str]
     name: str
+    file_prefix: str
+    mod_type: str
 
-    def __init__(self, mod_path: Path, full_mod_name: str):
+    def __init__(self, mod_name: str, mod_path: Path):
         self.mod_path = mod_path
+
+        print(f"Loading: {mod_name} -> {mod_path}")
+
+        if self.mod_path.is_dir():
+            # File baised mod
+            full_mod_name = self.mod_path.name
+            self.file_prefix = ""
+            self.mod_type = "file"
+            self.all_files = {
+                str(p.relative_to(self.mod_path).as_posix())
+                for p in self.mod_path.glob("**/*.png")
+            }
+
+        else:
+            # Zipped baised mod
+            full_mod_name = self.mod_path.stem
+            self.file_prefix = full_mod_name + "/"
+            self.mod_type = "zip"
+
+            zfile = zipfile.ZipFile(str(self.mod_path), "r")
+
+            self.all_files = set()
+
+            for f in zfile.namelist():
+                f = str(f)
+
+                if not f.endswith("png"):
+                    continue
+
+                assert f.startswith(self.file_prefix), (
+                    f"Mod {self.name} has file '{f}' with invalid name"
+                    f" (Not starting with '{self.file_prefix}')"
+                )
+
+                self.all_files.add(f[len(self.file_prefix) :])
+
         self.name = full_mod_name.split("_")[0]
 
     def files(self, filter: Path) -> Iterable[str]:
-        return [
-            f.relative_to(self.mod_path).as_posix()
-            for f in self.mod_path.glob(str(filter))
-        ]
-
-    def lazy_file(self, path: str) -> LazyFile:
-        return LazyFile("file", self.mod_path, path)
-
-
-class ZipMod(Mod):
-    mod_path: Path
-    zfile: zipfile.ZipFile
-    name: str
-
-    def __init__(self, mod_path: Path, full_mod_name: str):
-        self.zfile = zipfile.ZipFile(str(mod_path), "r")
-        self.mod_path = mod_path
-        self.full_mod_name = full_mod_name
-        self.name = full_mod_name.split("_")[0]
-
-    def files(self, filter: Path) -> Iterable[str]:
-        for f in self.zfile.namelist():
-            path_s = f.split("/")
+        for f in self.all_files:
             filter_s = filter.parts
-
-            assert (
-                path_s[0].split("_")[0] == self.name
-            ), f"Mod {self.name} has file '{f}' with invalid name"
 
             def filter_check(
                 current_path: List[str], current_filter: Tuple[str, ...]
@@ -96,11 +97,13 @@ class ZipMod(Mod):
                 else:
                     return False
 
-            if filter_check(path_s[1:], filter_s):
-                yield "/".join(path_s[1:])
+            if filter_check(f.split("/"), filter_s):
+                yield f
 
     def lazy_file(self, path: str) -> LazyFile:
-        return LazyFile("zip", self.mod_path, self.full_mod_name + "/" + path)
+        assert path in self.all_files, f"File {path} doesn't exist in mod {self.name}"
+
+        return LazyFile(self.mod_type, self.mod_path, self.file_prefix + path)
 
 
 def split_version(version: str) -> Optional[List[int]]:
@@ -155,10 +158,13 @@ def find_mod(mod_name: str, source_dirs: List[Path]) -> Path:
     raise Exception(f"Failed to find code for mod: {mod_name}")
 
 
-def open_mod_read(mod_name: str, source_dirs: List[Path]) -> Mod:
-    mod_path = find_mod(mod_name, source_dirs)
+global_mod_cache: Dict[str, Mod] = {}
 
-    if mod_path.is_dir():
-        return FileMod(mod_path, mod_path.name)
-    else:
-        return ZipMod(mod_path, mod_path.stem)
+
+def open_mod_read(mod_name: str, source_dirs: List[Path]) -> Mod:
+    if mod_name not in global_mod_cache:
+        mod_path = find_mod(mod_name, source_dirs)
+
+        global_mod_cache[mod_name] = Mod(mod_name, mod_path)
+
+    return global_mod_cache[mod_name]
