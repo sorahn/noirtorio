@@ -1,0 +1,66 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+FactorioExtended-Plus-Core:
+  graphics:
+    icons:
+
+FactorioExtended-Plus-Equipment:
+  graphics:
+    icons:
+
+FactorioExtended-Plus-Logistics:
+  graphics:
+    entity:
+
+FactorioExtended-Plus-Machines:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Module:
+  graphics:
+    entity:
+    technology:
+    icons:
+
+FactorioExtended-Plus-Power:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Transport:
+  graphics:
+    entity:
+    icons:
+
+FactorioExtended-Plus-Weaponry:
+  graphics:
+    entity:
+    icons:
+
+includes:
+  - mk2
+
+excludes:
+  - mask
+  - electric-mining-drill
+  - rapid-
+  - gun-turret
+  - big-electric-pole
+
+replaces:
+  "-mk2": ""
+
+  # Take the files from vanilla factorio
+  __FactorioExtended-Plus-Core__: __base__
+  __FactorioExtended-Plus-Equipment__: __base__
+  __FactorioExtended-Plus-Logistics__: __base__
+  __FactorioExtended-Plus-Machines__: __base__
+  __FactorioExtended-Plus-Module__: __base__
+  __FactorioExtended-Plus-Power__: __base__
+  __FactorioExtended-Plus-Transport__: __base__
+  __FactorioExtended-Plus-Weaponry__: __base__
+
+
