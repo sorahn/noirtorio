@@ -2,28 +2,10 @@ treatment:
   brightness: 70%
   saturation: 30%
 
-FactorioExtended-Plus-Core:
-  graphics:
-    icons:
-
-FactorioExtended-Plus-Equipment:
-  graphics:
-    icons:
-
-FactorioExtended-Plus-Logistics:
-  graphics:
-    entity:
 
 FactorioExtended-Plus-Machines:
   graphics:
     entity:
-    icons:
-
-FactorioExtended-Plus-Module:
-  graphics:
-    entity:
-    technology:
-    icons:
 
 FactorioExtended-Plus-Power:
   graphics:
@@ -41,7 +23,11 @@ FactorioExtended-Plus-Weaponry:
     icons:
 
 includes:
-  - mk2
+  - electric-mining-drill-*mk2
+  - rapid-*mk2
+  - gun-turret-*mk2
+  - big-electric-pole-*mk2
 
 excludes:
   - mask
+

@@ -1,4 +1,5 @@
 """A sprite category described in a YAML file."""
+from fnmatch import fnmatch
 import itertools
 import pprint
 from pathlib import Path
@@ -9,7 +10,7 @@ import click
 from attr import converters
 from ruamel.yaml import YAML  # type: ignore
 
-from factorio_noir.mod import Mod, open_mod_read
+from factorio_noir.mod import Mod, LazyFile, open_mod_read
 
 SAFE_PARSER = YAML(typ="safe")
 
@@ -95,11 +96,13 @@ class SpriteCategory:
     """Describe a category of sprite, and the associated treatment."""
 
     source: Path
+    source_dirs: List[Path]
     mods: Set[str]
     treatment: SpriteTreatment
     patterns: List[Tuple[Mod, Path]]
     excludes: List[str]
     includes: List[str]
+    replaces: Dict[str, str]
 
     @classmethod
     def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> "SpriteCategory":
@@ -117,9 +120,9 @@ class SpriteCategory:
 
         excludes = definition.pop("excludes", [])
         includes = definition.pop("includes", [])
+        replaces = definition.pop("replaces", {})
 
         patterns: List[Tuple[Mod, Path]] = []
-        mod_cache = {}
 
         def parse_mod_patterns(path: Path, node: Any) -> Iterable[Path]:
             if node is None:
@@ -141,24 +144,23 @@ class SpriteCategory:
             )
 
         for mod_name, first_node in definition.items():
-            if mod_name not in mod_cache:
-                mod_cache[mod_name] = open_mod_read(mod_name, source_dirs)
-
-            mod = mod_cache[mod_name]
+            mod = open_mod_read(mod_name, source_dirs)
 
             mod_patterns = [(mod, p) for p in parse_mod_patterns(Path("."), first_node)]
             patterns.extend(mod_patterns)
 
         return cls(
             source=yaml_path,
+            source_dirs=source_dirs,
             mods=set(definition.keys()),
             treatment=treatment,
             patterns=patterns,
             excludes=excludes,
             includes=includes,
+            replaces=replaces,
         )
 
-    def sprite_paths(self) -> Iterable[Tuple[Mod, str]]:
+    def sprite_files(self) -> Iterable[Tuple[LazyFile, str]]:
         """Yield all sprite paths matching this category."""
 
         missed_patterns = []
@@ -169,16 +171,25 @@ class SpriteCategory:
 
             for sprite_path in mod.files(pattern):
                 # But they should not match any of the excludes
-                if any(exclude in sprite_path for exclude in self.excludes):
+                if any(
+                    fnmatch(sprite_path, f"*{exclude}*") for exclude in self.excludes
+                ):
                     continue
 
                 if len(self.includes) > 0:
-                    # They must contain an include
-                    if all(include not in sprite_path for include in self.includes):
+                    # They must contain an includes
+                    if all(
+                        not fnmatch(sprite_path, f"*{include}*")
+                        for include in self.includes
+                    ):
                         continue
 
+                full_sprite_path = f"__{mod.name}__/{sprite_path}"
+
+                replaced_mod, replaced_sprite_path = self.replace_path(full_sprite_path)
+
                 pattern_used = True
-                yield mod, sprite_path
+                yield replaced_mod.lazy_file(replaced_sprite_path), full_sprite_path
 
             if not pattern_used:
                 missed_patterns.append(f"__{mod.name}__/{pattern}")
@@ -189,3 +200,16 @@ class SpriteCategory:
                 + "\n    ".join(missed_patterns),
                 fg="yellow",
             )
+
+    def replace_path(self, full_sprite_path: str) -> Tuple[Mod, str]:
+        new_path = full_sprite_path
+        for find, replace in self.replaces.items():
+            new_path = new_path.replace(find, replace)
+
+        new_mod_name, new_sprite_path = new_path.split("/", 1)
+
+        # remove '__' srounding the mod name
+        assert new_mod_name[:2] == "__" and new_mod_name[-2:] == "__"
+        new_mod_name = new_mod_name[2:-2]
+
+        return open_mod_read(new_mod_name, self.source_dirs), new_sprite_path
