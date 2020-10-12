@@ -171,12 +171,17 @@ class SpriteCategory:
 
             for sprite_path in mod.files(pattern):
                 # But they should not match any of the excludes
-                if any(fnmatch(sprite_path, f"*{exclude}*") for exclude in self.excludes):
+                if any(
+                    fnmatch(sprite_path, f"*{exclude}*") for exclude in self.excludes
+                ):
                     continue
 
                 if len(self.includes) > 0:
                     # They must contain an includes
-                    if all(not fnmatch(sprite_path, f"*{include}*") for include in self.includes):
+                    if all(
+                        not fnmatch(sprite_path, f"*{include}*")
+                        for include in self.includes
+                    ):
                         continue
 
                 full_sprite_path = f"__{mod.name}__/{sprite_path}"
