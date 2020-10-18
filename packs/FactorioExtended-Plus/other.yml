@@ -44,7 +44,27 @@ FactorioExtended-Plus-Weaponry:
     icons:
 
 excludes:
+  - shadow
+  - glow
+  - heater
+  - heated
+  - light
+  - fire
+  - jet-flame
+  - fire-flame
+  - fire-stream
   - mask
+  - green
+  - liquid
+  - foam
+  - fluid-flow
+  - diode-red
+  - laser-body
+  - charge
+  - signal.png
+  - radius-visualization
+  - beacon-module-slot
   - mk1
   - mk2
   - mk3
+

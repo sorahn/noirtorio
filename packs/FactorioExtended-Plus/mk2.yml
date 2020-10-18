@@ -12,11 +12,6 @@ FactorioExtended-Plus-Power:
     entity:
     icons:
 
-FactorioExtended-Plus-Transport:
-  graphics:
-    entity:
-    icons:
-
 FactorioExtended-Plus-Weaponry:
   graphics:
     entity:
@@ -24,10 +19,27 @@ FactorioExtended-Plus-Weaponry:
 
 includes:
   - electric-mining-drill-*mk2
-  - rapid-*mk2
   - gun-turret-*mk2
   - big-electric-pole-*mk2
 
 excludes:
+  - shadow
+  - glow
+  - heater
+  - heated
+  - light
+  - fire
+  - jet-flame
+  - fire-flame
+  - fire-stream
   - mask
-
+  - green
+  - liquid
+  - foam
+  - fluid-flow
+  - diode-red
+  - laser-body
+  - charge
+  - signal.png
+  - radius-visualization
+  - beacon-module-slot

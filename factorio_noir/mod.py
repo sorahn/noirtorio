@@ -10,6 +10,7 @@ class LazyFile:
     mod_type: str
     mod_path: Path
     file_path: str
+    lua_path: str
 
     def open(self) -> IO[bytes]:
         if self.mod_type == "file":
@@ -48,23 +49,25 @@ class Mod:
         else:
             # Zipped baised mod
             full_mod_name = self.mod_path.stem
-            self.file_prefix = full_mod_name + "/"
             self.mod_type = "zip"
 
             zfile = zipfile.ZipFile(str(self.mod_path), "r")
+
+            # There should be exactly 1x folder withing the root of the mod
+            self.file_prefix = zfile.namelist()[0].split("/")[0] + "/"
 
             self.all_files = set()
 
             for f in zfile.namelist():
                 f = str(f)
 
-                if not f.endswith("png"):
-                    continue
-
                 assert f.startswith(self.file_prefix), (
-                    f"Mod {self.name} has file '{f}' with invalid name"
+                    f"Mod {mod_name} has file '{f}' with invalid name"
                     f" (Not starting with '{self.file_prefix}')"
                 )
+
+                if not f.endswith("png"):
+                    continue
 
                 self.all_files.add(f[len(self.file_prefix) :])
 
@@ -103,7 +106,12 @@ class Mod:
     def lazy_file(self, path: str) -> LazyFile:
         assert path in self.all_files, f"File {path} doesn't exist in mod {self.name}"
 
-        return LazyFile(self.mod_type, self.mod_path, self.file_prefix + path)
+        return LazyFile(
+            self.mod_type,
+            self.mod_path,
+            self.file_prefix + path,
+            f"__{self.name}__/{self.mod_path}",
+        )
 
 
 def split_version(version: str) -> Optional[List[int]]:

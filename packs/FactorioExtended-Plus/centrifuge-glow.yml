@@ -1,0 +1,17 @@
+treatment:
+  brightness: 100%
+  saturation: 100%
+
+FactorioExtended-Plus-Machines:
+  graphics:
+    entity:
+      centrifuge-*:
+        - light
+
+replaces:
+  "-mk2": ""
+  "-mk3": ""
+
+  # Take the files from vanilla factorio
+  __FactorioExtended-Plus-Machines__: __base__
+

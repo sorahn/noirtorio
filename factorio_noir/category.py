@@ -160,7 +160,7 @@ class SpriteCategory:
             replaces=replaces,
         )
 
-    def sprite_files(self) -> Iterable[Tuple[LazyFile, str]]:
+    def sprite_files(self) -> Iterable[Tuple[LazyFile, Optional[LazyFile], str]]:
         """Yield all sprite paths matching this category."""
 
         missed_patterns = []
@@ -189,7 +189,16 @@ class SpriteCategory:
                 replaced_mod, replaced_sprite_path = self.replace_path(full_sprite_path)
 
                 pattern_used = True
-                yield replaced_mod.lazy_file(replaced_sprite_path), full_sprite_path
+
+                lazy_match_size_file = None
+                if replaced_mod != mod or replaced_sprite_path != sprite_path:
+                    lazy_match_size_file = mod.lazy_file(sprite_path)
+
+                yield (
+                    replaced_mod.lazy_file(replaced_sprite_path),
+                    lazy_match_size_file,
+                    full_sprite_path,
+                )
 
             if not pattern_used:
                 missed_patterns.append(f"__{mod.name}__/{pattern}")
