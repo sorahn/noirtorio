@@ -45,6 +45,7 @@ includes:
 
 excludes:
   - mask
+  - light
   - electric-mining-drill
   - rapid-
   - gun-turret

@@ -19,4 +19,23 @@ includes:
   - big-electric-pole-*mk3
 
 excludes:
+  - shadow
+  - glow
+  - heater
+  - heated
+  - light
+  - fire
+  - jet-flame
+  - fire-flame
+  - fire-stream
   - mask
+  - green
+  - liquid
+  - foam
+  - fluid-flow
+  - diode-red
+  - laser-body
+  - charge
+  - signal.png
+  - radius-visualization
+  - beacon-module-slot

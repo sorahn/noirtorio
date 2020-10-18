@@ -1,0 +1,13 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+
+FactorioExtended-Plus-Transport:
+  graphics:
+    entity:
+    icons:
+
+includes:
+  - rapid-*-mk2
+

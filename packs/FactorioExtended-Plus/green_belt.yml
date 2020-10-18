@@ -8,7 +8,5 @@ FactorioExtended-Plus-Transport:
     icons:
 
 includes:
-  - mk1
+  - rapid-*-mk1
 
-excludes:
-  - mask
