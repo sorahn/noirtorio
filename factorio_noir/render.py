@@ -5,7 +5,7 @@ from pathlib import Path
 from functools import lru_cache
 from dataclasses import dataclass
 from PIL import Image  # type: ignore
-from typing import List
+from typing import List, Optional, Tuple
 
 from factorio_noir.category import SpriteTreatment
 from factorio_noir.mod import LazyFile
@@ -13,6 +13,7 @@ from factorio_noir.mod import LazyFile
 
 def process_sprite(
     lazy_source_file: LazyFile,
+    lazy_match_size_file: Optional[LazyFile],
     target_file_path: Path,
     treatment: SpriteTreatment,
 ) -> None:
@@ -20,11 +21,18 @@ def process_sprite(
 
     target_file_path.parent.mkdir(exist_ok=True, parents=True)
 
+    if lazy_match_size_file is not None:
+        with lazy_match_size_file.open() as match_size_file:
+            new_size = Image.open(match_size_file).size
+    else:
+        new_size = None
+
     with lazy_source_file.open() as source_file:
         sprite = Image.open(source_file).convert("RGBA")
         processed_sprite = apply_transforms(
             sprite,
             treatment,
+            new_size,
         )
         processed_sprite.save(target_file_path)
 
@@ -76,7 +84,9 @@ class ColorSpace:
 DEFAULT_COLORSPACE = ColorSpace(X=0.3086, Y=0.6094, Z=0.0820)
 
 
-def apply_transforms(image: Image, treatment: SpriteTreatment) -> Image:
+def apply_transforms(
+    image: Image, treatment: SpriteTreatment, new_size: Optional[Tuple[float, float]]
+) -> Image:
     """Apply the needed transformations to the given image."""
     img_alpha = image.getchannel("A")
     img_rgb = image.convert("RGB")
@@ -98,5 +108,8 @@ def apply_transforms(image: Image, treatment: SpriteTreatment) -> Image:
         img_converted.paste(blended_box, bounding_box)
 
     img_converted.putalpha(img_alpha)
+
+    if new_size is not None and img_converted.size != new_size:
+        img_converted = img_converted.resize(new_size)
 
     return img_converted

@@ -282,13 +282,19 @@ def gen_pack_files(
         with (target_dir / "info.json").open("w") as file:
             json.dump(info_file, file, indent=4, sort_keys=True)
     else:
-        click.echo("New info.json: %s" % json.dumps(info_file,indent=4, sort_keys=True))
+        click.echo(
+            "New info.json: %s" % json.dumps(info_file, indent=4, sort_keys=True)
+        )
 
     click.echo("Starting to process sprites")
     with sprite_processor(process_sprite) as submit:
         with click.progressbar(categories, label="Make sprites tasks") as progress:
             for category in progress:
-                for lazy_source_file, lua_path in category.sprite_files():
+                for (
+                    lazy_source_file,
+                    lazy_match_size_file,
+                    lua_path,
+                ) in category.sprite_files():
                     if lua_path in marked_for_processing:
                         click.echo()
                         click.secho(
@@ -299,13 +305,16 @@ def gen_pack_files(
                             fg="red",
                         )
                         raise click.Abort()
-                    marked_for_processing[lua_path] = category.source.relative_to(pack_dir)
+                    marked_for_processing[lua_path] = str(
+                        category.source.relative_to(pack_dir)
+                    )
 
                     if not dry_run:
                         # We want lazy access to the file because contextmanager seralizes
                         # the file with pickel
                         submit(
                             lazy_source_file=lazy_source_file,
+                            lazy_match_size_file=lazy_match_size_file,
                             target_file_path=target_dir / "data" / lua_path,
                             treatment=category.treatment,
                         )
@@ -332,7 +341,9 @@ def gen_pack_files(
     else:
         for mod_name in sorted(used_mods):
             click.secho(f"Files from mod {mod_name}:")
-            for f in sorted(open_mod_read(mod_name, source_dirs).files(Path("**/*.png"))):
+            for f in sorted(
+                open_mod_read(mod_name, source_dirs).files(Path("**/*.png"))
+            ):
                 lua_path = f"__{mod_name}__/{f}"
 
                 click.secho(f"  {marked_for_processing.get(lua_path, '<unused>')}: {f}")
