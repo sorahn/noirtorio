@@ -1,0 +1,75 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+zombiesextended-core:
+  graphics:
+    icons:
+
+zombiesextended-equipment:
+  graphics:
+    equipment:
+    icons:
+
+zombiesextended-machines:
+  graphics:
+    entity:
+    icons:
+
+zombiesextended-modules:
+  graphics:
+    entity:
+    icons:
+
+zombiesextended-power:
+  graphics:
+    entity:
+    icons:
+
+zombiesextended-weapons:
+  graphics:
+    entity:
+    icons:
+
+
+includes:
+  - mk3
+
+excludes:
+  - mask
+  - microverse-battery
+  - personal-cannon-defense
+  - inserter
+  - transport-belt
+  - graphics/icons/heat-exchanger
+  - graphics/icons/adv-fuel-cell-reprocessing
+  - graphics/icons/used-up-adv-fuel-cell
+  - graphics/icons/adv-fuel-cell
+  - graphics/icons/antimatter-nuke
+  - graphics/icons/sniper-rifle
+  - graphics/icons/railgun-rifle
+  - graphics/icons/sniper-ammo
+  - graphics/icons/assault-rifle
+  - graphics/icons/assault-ammo
+
+replaces:
+  "-mk3": ""
+  
+  "assembling-machine": "assembling-machine-3"
+
+  "adv-reactor": "nuclear-reactor"
+  "medium-power-pole": "medium-electric-pole"
+  "large-power-pole": "big-electric-pole"
+  "chest": "steel-chest"
+
+
+  # Take the files from vanilla factorio
+  __zombiesextended-core__: __base__
+  __zombiesextended-equipment__: __base__
+  __zombiesextended-logistics__: __base__
+  __zombiesextended-machines__: __base__
+  __zombiesextended-modules__: __base__
+  __zombiesextended-power__: __base__
+  __zombiesextended-weapons__: __base__
+
+

@@ -1,0 +1,17 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+
+zombiesextended-logistics:
+  graphics:
+    entity:
+      - belt
+      - splitter
+    icons:
+      - belt
+      - splitter
+
+includes:
+  - mk1
+

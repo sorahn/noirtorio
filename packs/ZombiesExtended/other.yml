@@ -1,0 +1,39 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+zombiesextended-core:
+  graphics:
+    entity:
+    groups:
+    icons:
+    technology:
+
+zombiesextended-equipment:
+  graphics:
+    equipment:
+    icons:
+    technology:
+
+zombiesextended-logistics:
+  graphics:
+    entity:
+    icons:
+    technology:
+
+zombiesextended-power:
+  graphics:
+    entity:
+    icons:
+    technology:
+
+zombiesextended-weapons:
+  graphics:
+    icons:
+
+
+excludes:
+  - mask
+  - mk1
+  - mk2
+  - mk3
