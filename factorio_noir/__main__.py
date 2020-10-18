@@ -17,6 +17,7 @@ import click
 from factorio_noir.category import SpriteCategory
 from factorio_noir.render import process_sprite
 from factorio_noir.worker import sprite_processor
+from factorio_noir.mod import open_mod_read
 
 MOD_ROOT = Path(__file__).parent.parent.resolve()
 
@@ -57,6 +58,7 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 @click.command()
 @click.option("--pack-version", default="0.0.1")
 @click.option("--dev", is_flag=True, envvar="DEV")
+@click.option("--dry-run", is_flag=True)
 @click.option(
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
@@ -89,6 +91,7 @@ def cli(
     ctx: click.Context,
     pack_dirs: List[Path],
     dev: bool,
+    dry_run: bool,
     pack_version: str,
     factorio_data: Optional[Path],
     factorio_mods: Optional[Path],
@@ -135,6 +138,9 @@ def cli(
             )
             raise click.Abort
 
+    if dry_run:
+        click.secho("Doing a dry run. No files will be modified")
+
     if factorio_data is not None:
         factorio_data = Path(factorio_data)
         if any(not (factorio_data / mod).exists() for mod in VANILLA_MODS):
@@ -169,22 +175,24 @@ def cli(
 
         click.secho(f"Using dev directory: {target_dir}", fg="blue")
 
-        if target_dir.exists() and not target_dir.is_dir():
-            click.secho("  - Not a directory, deleting it", fg="yellow")
-            target_dir.unlink()
-        elif target_dir.exists():
-            click.secho("  - Emptying directory", fg="yellow")
-            for f in target_dir.iterdir():
-                if f.is_file():
-                    f.unlink()
-                else:
-                    shutil.rmtree(f)
+        if not dry_run:
+            if target_dir.exists() and not target_dir.is_dir():
+                click.secho("  - Not a directory, deleting it", fg="yellow")
+                target_dir.unlink()
+            elif target_dir.exists():
+                click.secho("  - Emptying directory", fg="yellow")
+                for f in target_dir.iterdir():
+                    if f.is_file():
+                        f.unlink()
+                    else:
+                        shutil.rmtree(f)
 
-        target_dir.mkdir(exist_ok=True, parents=True)
+            target_dir.mkdir(exist_ok=True, parents=True)
 
     else:
         target_dir = Path(tempfile.mkdtemp()) / f"{pack_name}_{pack_version}"
-        target_dir.mkdir(exist_ok=True, parents=True)
+        if not dry_run:
+            target_dir.mkdir(exist_ok=True, parents=True)
         click.echo(f"Created temporary directory: {target_dir}")
 
     gen_pack_files(
@@ -194,6 +202,7 @@ def cli(
         pack_name,
         pack_version,
         is_vanilla,
+        dry_run,
     )
 
     if dev is True:
@@ -202,19 +211,22 @@ def cli(
     click.echo("Making ZIP package")
     zip_loc = final_target_dir.parent / f"{pack_name}_{pack_version}"
 
-    zip_loc.parent.mkdir(parents=True, exist_ok=True)
-    archive_name = shutil.make_archive(
-        str(zip_loc),
-        format="zip",
-        root_dir=target_dir.parent,
-        base_dir=target_dir.name,
-    )
+    if not dry_run:
+        zip_loc.parent.mkdir(parents=True, exist_ok=True)
+        archive_name = shutil.make_archive(
+            str(zip_loc),
+            format="zip",
+            root_dir=target_dir.parent,
+            base_dir=target_dir.name,
+        )
+
     click.secho(
         f"Created archive for pack: {archive_name}",
         fg="green",
     )
     click.secho("Removing temp dir, and cleaning up.", fg="yellow")
-    shutil.rmtree(target_dir)
+    if not dry_run:
+        shutil.rmtree(target_dir)
 
 
 def gen_pack_files(
@@ -224,6 +236,7 @@ def gen_pack_files(
     pack_name: str,
     pack_version: str,
     is_vanilla: bool,
+    dry_run: bool,
 ) -> None:
     """Generate a Factorio-Noir package from pack directory."""
     click.echo(f"Loading categories for pack: {pack_dir}")
@@ -245,9 +258,10 @@ def gen_pack_files(
 
     if is_vanilla:
         graphics_dir = target_dir / "data" / "core" / "graphics"
-        graphics_dir.mkdir(exist_ok=True, parents=True)
+        if not dry_run:
+            graphics_dir.mkdir(exist_ok=True, parents=True)
+            shutil.copy(MOD_ROOT / "background-image.jpg", graphics_dir)
 
-        shutil.copy(MOD_ROOT / "background-image.jpg", graphics_dir)
         marked_for_processing["__core__/graphics/background-image.jpg"] = "<Builtin>"
 
     click.echo("Patching the info.json file")
@@ -264,8 +278,11 @@ def gen_pack_files(
 
     info_file["dependencies"].extend(used_mods - VANILLA_MODS)
 
-    with (target_dir / "info.json").open("w") as file:
-        json.dump(info_file, file, indent=4, sort_keys=True)
+    if not dry_run:
+        with (target_dir / "info.json").open("w") as file:
+            json.dump(info_file, file, indent=4, sort_keys=True)
+    else:
+        click.echo("New info.json: %s" % json.dumps(info_file,indent=4, sort_keys=True))
 
     click.echo("Starting to process sprites")
     with sprite_processor(process_sprite) as submit:
@@ -282,33 +299,43 @@ def gen_pack_files(
                             fg="red",
                         )
                         raise click.Abort()
-                    marked_for_processing[lua_path] = str(category.source)
+                    marked_for_processing[lua_path] = category.source.relative_to(pack_dir)
 
-                    # We want lazy access to the file because contextmanager seralizes
-                    # the file with pickel
-                    submit(
-                        lazy_source_file=lazy_source_file,
-                        target_file_path=target_dir / "data" / lua_path,
-                        treatment=category.treatment,
-                    )
+                    if not dry_run:
+                        # We want lazy access to the file because contextmanager seralizes
+                        # the file with pickel
+                        submit(
+                            lazy_source_file=lazy_source_file,
+                            target_file_path=target_dir / "data" / lua_path,
+                            treatment=category.treatment,
+                        )
 
-    # inform lua which files need to be replaced
-    with (target_dir / "config.lua").open("w") as file:
-        file.write(
-            """
-return {
-    is_vanilla = %s,
-    resource_pack_name = "%s",
-    updated_assets = {
-"""
-            % (str(is_vanilla).lower(), pack_name)
-        )
+    if not dry_run:
+        # inform lua which files need to be replaced
+        with (target_dir / "config.lua").open("w") as file:
+            file.write(
+                """
+    return {
+        is_vanilla = %s,
+        resource_pack_name = "%s",
+        updated_assets = {
+    """
+                % (str(is_vanilla).lower(), pack_name)
+            )
 
-        for asset in sorted(marked_for_processing.keys()):
-            file.write('["%s"]=1,\n' % asset)
+            for asset in sorted(marked_for_processing.keys()):
+                file.write('["%s"]=1,\n' % asset)
 
-        file.write("    },\n")
-        file.write("}\n")
+            file.write("    },\n")
+            file.write("}\n")
+
+    else:
+        for mod_name in sorted(used_mods):
+            click.secho(f"Files from mod {mod_name}:")
+            for f in sorted(open_mod_read(mod_name, source_dirs).files(Path("**/*.png"))):
+                lua_path = f"__{mod_name}__/{f}"
+
+                click.secho(f"  {marked_for_processing.get(lua_path, '<unused>')}: {f}")
 
 
 if __name__ == "__main__":

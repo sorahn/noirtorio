@@ -10,6 +10,7 @@ class LazyFile:
     mod_type: str
     mod_path: Path
     file_path: str
+    lua_path: str
 
     def open(self) -> IO[bytes]:
         if self.mod_type == "file":
@@ -21,7 +22,6 @@ class LazyFile:
 
         else:
             raise Exception(f"Unknown mod_type: {self.mod_type}")
-
 
 class Mod:
     mod_path: Path
@@ -103,7 +103,7 @@ class Mod:
     def lazy_file(self, path: str) -> LazyFile:
         assert path in self.all_files, f"File {path} doesn't exist in mod {self.name}"
 
-        return LazyFile(self.mod_type, self.mod_path, self.file_prefix + path)
+        return LazyFile(self.mod_type, self.mod_path, self.file_prefix + path, f"__{self.name}__/{self.mod_path}")
 
 
 def split_version(version: str) -> Optional[List[int]]:
