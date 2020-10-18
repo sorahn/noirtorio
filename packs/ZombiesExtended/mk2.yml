@@ -2,43 +2,14 @@ treatment:
   brightness: 75%
   saturation: 50%
 
-zombiesextended-core:
-  graphics:
-    technology:
-
 zombiesextended-equipment:
   graphics:
     equipment:
       - microverse-battery
       - personal-cannon-defense
-    technology:
     icons:
       - microverse-battery
       - personal-cannon-defense
-
-zombiesextended-logistics:
-  graphics:
-    entity:
-      - inserter
-    technology:
-    icons:
-      - inserter
-
-zombiesextended-machines:
-  graphics:
-    technology:
-
-zombiesextended-modules:
-  graphics:
-    technology:
-
-zombiesextended-power:
-  graphics:
-    technology:
-
-zombiesextended-weapons:
-  graphics:
-    technology:
 
 
 includes:

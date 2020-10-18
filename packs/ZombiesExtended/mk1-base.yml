@@ -37,11 +37,13 @@ includes:
 
 excludes:
   - mask
+  - lights
   - microverse-battery
   - personal-cannon-defense
   - inserter
   - belt
   - splitter
+  - assembling-machine
   - graphics/icons/heat-exchanger
   - graphics/icons/adv-fuel-cell-reprocessing
   - graphics/icons/used-up-adv-fuel-cell

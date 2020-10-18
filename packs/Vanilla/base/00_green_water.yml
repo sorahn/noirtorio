@@ -1,0 +1,13 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+base:
+  graphics:
+    terrain:
+      water-green
+
+excludes:
+  - mask
+  - water-transitions
+  - water-green

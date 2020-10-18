@@ -37,6 +37,7 @@ includes:
 
 excludes:
   - mask
+  - lights
   - microverse-battery
   - personal-cannon-defense
   - inserter

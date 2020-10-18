@@ -1,0 +1,11 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+zombiesextended-logistics:
+  graphics:
+    entity:
+      - inserter
+    icons:
+      - inserter
+
