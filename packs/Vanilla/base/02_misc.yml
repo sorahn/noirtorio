@@ -1,11 +1,10 @@
 treatment:
   brightness: 50%
-  saturation: 10%
+  saturation: 35%
 
 base:
   graphics:
     item-group:
-    technology:
     equipment:
     achievement:
     icons:

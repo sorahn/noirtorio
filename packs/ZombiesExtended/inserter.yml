@@ -2,16 +2,9 @@ treatment:
   brightness: 70%
   saturation: 10%
 
-
 zombiesextended-logistics:
   graphics:
     entity:
-      - belt
-      - splitter
+      - inserter
     icons:
-      - belt
-      - splitter
-
-includes:
-  - mk1
-
+      - inserter

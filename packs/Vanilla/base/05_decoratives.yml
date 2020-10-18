@@ -19,6 +19,8 @@ base:
 excludes:
   - mask
   - hazard
+  - shadow
   - water-transitions
+  - water-green
   - out-of-map-transition
   - water-noise

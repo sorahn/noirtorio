@@ -7,25 +7,21 @@ zombiesextended-core:
     entity:
     groups:
     icons:
-    technology:
 
 zombiesextended-equipment:
   graphics:
     equipment:
     icons:
-    technology:
 
 zombiesextended-logistics:
   graphics:
     entity:
     icons:
-    technology:
 
 zombiesextended-power:
   graphics:
     entity:
     icons:
-    technology:
 
 zombiesextended-weapons:
   graphics:
@@ -34,6 +30,8 @@ zombiesextended-weapons:
 
 excludes:
   - mask
+  - shadow
   - mk1
   - mk2
   - mk3
+  - gold-ore

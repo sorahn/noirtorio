@@ -12,6 +12,7 @@ excludes:
   - visualization
   - radius
   - color_luts
+  - shadow
   - fluid-icon-red.png
   - ammo-icon-red.png
   - fuel-icon-red.png

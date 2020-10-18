@@ -1,6 +1,6 @@
 treatment:
   brightness: 70%
-  saturation: 30%
+  saturation: 25%
 
 zombiesextended-core:
   graphics:
@@ -37,6 +37,7 @@ includes:
 
 excludes:
   - mask
+  - lights
   - microverse-battery
   - personal-cannon-defense
   - inserter
@@ -52,6 +53,7 @@ excludes:
   - graphics/icons/sniper-ammo
   - graphics/icons/assault-rifle
   - graphics/icons/assault-ammo
+
 
 replaces:
   "-mk1": ""

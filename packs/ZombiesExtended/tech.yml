@@ -1,12 +1,16 @@
 treatment:
-  brightness: 80%
-  saturation: 80%
+  brightness: 50%
+  saturation: 10%
 
 zombiesextended-core:
   graphics:
     technology:
 
 zombiesextended-equipment:
+  graphics:
+    technology:
+
+zombiesextended-logistics:
   graphics:
     technology:
 
@@ -26,10 +30,4 @@ zombiesextended-weapons:
   graphics:
     technology:
 
-
-includes:
-  - mk3
-
-excludes:
-  - mask
 

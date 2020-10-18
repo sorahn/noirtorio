@@ -1,0 +1,14 @@
+treatment:
+  brightness: 70%
+  saturation: 40%
+
+zombiesextended-core:
+  graphics:
+    entity:
+      - gold-ore
+    icons:
+      - gold-ore
+
+excludes:
+  - mask
+
