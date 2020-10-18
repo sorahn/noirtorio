@@ -103,6 +103,7 @@ class SpriteCategory:
     excludes: List[str]
     includes: List[str]
     replaces: Dict[str, str]
+    copy_files: Dict[str, Path]
 
     @classmethod
     def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> "SpriteCategory":
@@ -121,6 +122,9 @@ class SpriteCategory:
         excludes = definition.pop("excludes", [])
         includes = definition.pop("includes", [])
         replaces = definition.pop("replaces", {})
+        copy_files = {
+            k: yaml_path.parent / v for k, v in definition.pop("copy_files", {}).items()
+        }
 
         patterns: List[Tuple[Mod, Path]] = []
 
@@ -158,6 +162,7 @@ class SpriteCategory:
             excludes=excludes,
             includes=includes,
             replaces=replaces,
+            copy_files=copy_files,
         )
 
     def sprite_files(self) -> Iterable[Tuple[LazyFile, Optional[LazyFile], str]]:

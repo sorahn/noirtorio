@@ -10,7 +10,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import click
 
@@ -245,6 +245,8 @@ def gen_pack_files(
         for category_file in Path(pack_dir).glob("**/*.yml")
     ]
 
+    lua_includes = sorted(Path(pack_dir).glob("**/*.lua"))
+
     used_mods = {m for c in categories for m in c.mods}
     click.secho(
         f"Loaded {len(categories)} categories using a total of {len(used_mods)} mods.",
@@ -252,17 +254,18 @@ def gen_pack_files(
     )
 
     click.secho("Prepared all mods, now adding info.json and other files.", fg="green")
-    marked_for_processing = {}
 
-    shutil.copy(MOD_ROOT / "data-final-fixes.lua", target_dir)
+    if not dry_run:
+        with (target_dir / "data-final-fixes.lua").open("w") as data_final_fixes_file:
+            with (MOD_ROOT / "data-final-fixes.lua").open("r") as lua_file:
+                data_final_fixes_file.write(lua_file.read())
 
-    if is_vanilla:
-        graphics_dir = target_dir / "data" / "core" / "graphics"
-        if not dry_run:
-            graphics_dir.mkdir(exist_ok=True, parents=True)
-            shutil.copy(MOD_ROOT / "background-image.jpg", graphics_dir)
-
-        marked_for_processing["__core__/graphics/background-image.jpg"] = "<Builtin>"
+            for lua_include in lua_includes:
+                with lua_include.open("r") as lua_file:
+                    data_final_fixes_file.write(
+                        f"\n\n-- {lua_include.relative_to(pack_dir)}:\n\n"
+                    )
+                    data_final_fixes_file.write(lua_file.read())
 
     click.echo("Patching the info.json file")
     with (MOD_ROOT / "info.json").open() as file:
@@ -271,7 +274,8 @@ def gen_pack_files(
     info_file["name"] = pack_name
 
     if not is_vanilla:
-        info_file["title"] += " - " + pack_name
+        info_file["title"] += " - " + Path(pack_dir).name
+        info_file["dependencies"].append("factorio-noir")
 
     if pack_version is not None:
         info_file["version"] = pack_version
@@ -287,6 +291,8 @@ def gen_pack_files(
         )
 
     click.echo("Starting to process sprites")
+    marked_for_processing: Dict[str, str] = {}
+
     with sprite_processor(process_sprite) as submit:
         with click.progressbar(categories, label="Make sprites tasks") as progress:
             for category in progress:
@@ -300,7 +306,7 @@ def gen_pack_files(
                         click.secho(
                             f"The sprite {lua_path} was included in processing "
                             f"from more than one category: \n"
-                            f"    {str(category.source)}\n"
+                            f"    {str(category.source.relative_to(pack_dir))}\n"
                             f"    {marked_for_processing[lua_path]}",
                             fg="red",
                         )
@@ -319,17 +325,36 @@ def gen_pack_files(
                             treatment=category.treatment,
                         )
 
+                for lua_path, file_path in category.copy_files.items():
+                    if lua_path in marked_for_processing:
+                        click.echo()
+                        click.secho(
+                            f"The sprite {lua_path} was included in processing "
+                            f"from more than one category: \n"
+                            f"    {str(category.source.relative_to(pack_dir))}\n"
+                            f"    {marked_for_processing[lua_path]}",
+                            fg="red",
+                        )
+                        raise click.Abort()
+                    marked_for_processing[lua_path] = str(
+                        category.source.relative_to(pack_dir)
+                    )
+
+                    if not dry_run:
+                        target_file_path = target_dir / "data" / lua_path
+                        target_file_path.parent.mkdir(exist_ok=True, parents=True)
+                        shutil.copy(file_path, target_file_path)
+
     if not dry_run:
         # inform lua which files need to be replaced
         with (target_dir / "config.lua").open("w") as file:
             file.write(
                 """
     return {
-        is_vanilla = %s,
         resource_pack_name = "%s",
         updated_assets = {
     """
-                % (str(is_vanilla).lower(), pack_name)
+                % pack_name
             )
 
             for asset in sorted(marked_for_processing.keys()):
