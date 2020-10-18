@@ -53,13 +53,8 @@ for entity_group_name, entity_group in pairs(data.raw) do
 		entity.enemy_map_color = desaturate(entity.enemy_map_color, 0.7, 0.1)
 
 		-- fixup the drawing of water
-		if entity.name == 'water-green' or entity.name == 'deepwater-green' then
-			entity.effect_color = desaturate(entity.effect_color, 0.5, 0.3)
-			entity.effect_color_secondary = desaturate(entity.effect_color_secondary, 0.5, 0.3)
-		else
-			entity.effect_color = desaturate(entity.effect_color, 0.5, 0.6)
-                        entity.effect_color_secondary = desaturate(entity.effect_color_secondary, 0.5, 0.6)
-		end
+		entity.effect_color = desaturate(entity.effect_color, 0.5, 0.6)
+		entity.effect_color_secondary = desaturate(entity.effect_color_secondary, 0.5, 0.3)
 
 		if entity.foam_color ~= nil then
 			entity.foam_color = desaturate(entity.foam_color, 0.5, 0.6)
