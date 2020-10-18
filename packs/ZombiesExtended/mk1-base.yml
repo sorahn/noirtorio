@@ -1,6 +1,6 @@
 treatment:
   brightness: 70%
-  saturation: 30%
+  saturation: 25%
 
 zombiesextended-core:
   graphics:
@@ -43,7 +43,6 @@ excludes:
   - inserter
   - belt
   - splitter
-  - assembling-machine
   - graphics/icons/heat-exchanger
   - graphics/icons/adv-fuel-cell-reprocessing
   - graphics/icons/used-up-adv-fuel-cell
@@ -54,6 +53,7 @@ excludes:
   - graphics/icons/sniper-ammo
   - graphics/icons/assault-rifle
   - graphics/icons/assault-ammo
+
 
 replaces:
   "-mk1": ""

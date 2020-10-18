@@ -11,13 +11,6 @@ zombiesextended-equipment:
       - microverse-battery
       - personal-cannon-defense
 
-zombiesextended-machines:
-  graphics:
-    entity:
-      assembling-machine-mk1:
-    icons:
-      - assembling-machine-mk1
-
 includes:
   - mk1
 

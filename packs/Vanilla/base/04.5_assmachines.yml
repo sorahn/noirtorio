@@ -1,0 +1,28 @@
+treatment:
+  brightness: 70%
+  saturation: 30%
+
+base:
+  graphics:
+    entity:
+      assembling-machine-1:
+      assembling-machine-2:
+      assembling-machine-3:
+
+excludes:
+  - shadow
+  - glow
+  - heater
+  - heated
+  - light
+  - fire
+  - flame
+  - mask
+  - green
+  - liquid
+  - foam
+  - fluid-flow
+  - diode-red
+  - laser-body
+  - charge
+  - signal.png

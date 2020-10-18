@@ -5,9 +5,7 @@ treatment:
 base:
   graphics:
     entity:
-      assembling-machine-1:
-      assembling-machine-2:
-      assembling-machine-3:
+
       burner-inserter:
       inserter:
       long-handed-inserter:

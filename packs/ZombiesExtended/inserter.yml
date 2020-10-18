@@ -1,6 +1,6 @@
 treatment:
   brightness: 70%
-  saturation: 30%
+  saturation: 10%
 
 zombiesextended-logistics:
   graphics:
@@ -8,4 +8,3 @@ zombiesextended-logistics:
       - inserter
     icons:
       - inserter
-
