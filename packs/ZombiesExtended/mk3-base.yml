@@ -53,15 +53,21 @@ excludes:
   - graphics/icons/assault-rifle
   - graphics/icons/assault-ammo
 
+
 replaces:
   "-mk3": ""
   
   "assembling-machine": "assembling-machine-3"
 
+  # Inconsinays with Zombies Extended naming
   "adv-reactor": "nuclear-reactor"
+  "adv-fuel-cell": "uranium-fuel-cell"
   "medium-power-pole": "medium-electric-pole"
   "large-power-pole": "big-electric-pole"
   "chest": "steel-chest"
+
+  # ... Thanks Factorio
+  "icons/heat-exchanger": "icons/heat-boiler"
 
 
   # Take the files from vanilla factorio

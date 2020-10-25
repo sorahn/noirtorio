@@ -1,0 +1,22 @@
+treatment:
+  brightness: 100%
+  saturation: 100%
+  hue: 10%
+  color_space:
+    - 1.0
+    - 1.0
+    - 1.0
+
+forced_assets:
+  - __base__/graphics/entity/centrifuge/centrifuge-mk1-A-light.png
+  - __base__/graphics/entity/centrifuge/centrifuge-mk1-B-light.png
+  - __base__/graphics/entity/centrifuge/centrifuge-mk1-C-light.png
+  - __base__/graphics/entity/centrifuge/hr-centrifuge-mk1-A-light.png
+  - __base__/graphics/entity/centrifuge/hr-centrifuge-mk1-B-light.png
+  - __base__/graphics/entity/centrifuge/hr-centrifuge-mk1-C-light.png
+
+replaces:
+  "-mk1": ""
+
+
+

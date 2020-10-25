@@ -1,0 +1,18 @@
+treatment:
+  brightness: 100%
+  saturation: 100%
+  hue: 15%
+  color_space:
+    - 1.0
+    - 1.0
+    - 1.0
+
+
+
+base:
+  graphics:
+    entity:
+      centrifuge:
+        - light
+
+
