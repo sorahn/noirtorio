@@ -26,6 +26,16 @@ def _float_or_percent(val: Union[float, str]) -> float:
     return float(val[:-1]) / 100
 
 
+def _color_space(val: List[float]) -> Tuple[float, float, float]:
+    if len(val) != 3:
+        raise ValueError("Color Space must be of length 3")
+
+    if any(type(t) != float for t in val):
+        raise ValueError("Color Space must be floats")
+
+    return (val[0], val[1], val[2])
+
+
 def _validate_tiling(inst: Any, attr: Any, value: List[List[float]]) -> None:
     """Ensure tiling is valid."""
     if len(value) == 0:
@@ -56,6 +66,8 @@ class SpriteTreatment:
 
     saturation: float = attr.ib(converter=_float_or_percent)
     brightness: float = attr.ib(converter=_float_or_percent)
+    hue: float = attr.ib(converter=_float_or_percent)
+    color_space: Tuple[float, float, float] = attr.ib(converter=_color_space)
     tiling: List[List[float]] = attr.ib(
         converter=_parse_tiling,
         validator=_validate_tiling,
@@ -64,10 +76,14 @@ class SpriteTreatment:
     @classmethod
     def from_yaml(cls, yaml_fragment: Dict[str, Any]) -> "SpriteTreatment":
         """Read the sprite treatment to do from a yaml fragment."""
+
         return cls(
             saturation=yaml_fragment["saturation"],
             brightness=yaml_fragment["brightness"],
+            hue=yaml_fragment.get("hue", 0.0),
             tiling=yaml_fragment.get("tiling"),
+            # Numbers taken from factorio's shader. Keep in sync with data-final-fixes.lua
+            color_space=yaml_fragment.get("color_space", [0.3086, 0.6094, 0.0820]),
         )
 
     def tiles(self, width: int, height: int) -> TileSet:
@@ -103,6 +119,8 @@ class SpriteCategory:
     excludes: List[str]
     includes: List[str]
     replaces: Dict[str, str]
+    copy_files: Dict[str, Path]
+    forced_assets: List[str]
 
     @classmethod
     def from_yaml(cls, yaml_path: Path, source_dirs: List[Path]) -> "SpriteCategory":
@@ -121,6 +139,10 @@ class SpriteCategory:
         excludes = definition.pop("excludes", [])
         includes = definition.pop("includes", [])
         replaces = definition.pop("replaces", {})
+        copy_files = {
+            k: yaml_path.parent / v for k, v in definition.pop("copy_files", {}).items()
+        }
+        forced_assets = definition.pop("forced_assets", [])
 
         patterns: List[Tuple[Mod, Path]] = []
 
@@ -158,6 +180,8 @@ class SpriteCategory:
             excludes=excludes,
             includes=includes,
             replaces=replaces,
+            copy_files=copy_files,
+            forced_assets=forced_assets,
         )
 
     def sprite_files(self) -> Iterable[Tuple[LazyFile, Optional[LazyFile], str]]:
@@ -194,8 +218,22 @@ class SpriteCategory:
                 if replaced_mod != mod or replaced_sprite_path != sprite_path:
                     lazy_match_size_file = mod.lazy_file(sprite_path)
 
+                    # Double check the excludes still don't match
+                    if any(
+                        fnmatch(replaced_sprite_path, f"*{exclude}*")
+                        for exclude in self.excludes
+                    ):
+                        continue
+
+                try:
+                    lazy_source_file = replaced_mod.lazy_file(replaced_sprite_path)
+                except:
+                    click.secho(f"Failed to find replacement sprite for:", fg="red")
+                    click.secho(f"  {self.source}: {full_sprite_path}", fg="red")
+                    raise
+
                 yield (
-                    replaced_mod.lazy_file(replaced_sprite_path),
+                    lazy_source_file,
                     lazy_match_size_file,
                     full_sprite_path,
                 )
@@ -209,6 +247,22 @@ class SpriteCategory:
                 + "\n    ".join(missed_patterns),
                 fg="yellow",
             )
+
+        for asset in self.forced_assets:
+            # Since a forced asset won't actually exist, we must replace
+            # it out to an actual sprite
+            mod, sprite_path = self.replace_path(asset)
+
+            try:
+                lazy_source_file = mod.lazy_file(sprite_path)
+            except:
+                click.secho(
+                    f"Failed to find replacement sprite for forced asset:", fg="red"
+                )
+                click.secho(f"  {self.source}: {asset}", fg="red")
+                raise
+
+            yield (lazy_source_file, None, asset)
 
     def replace_path(self, full_sprite_path: str) -> Tuple[Mod, str]:
         new_path = full_sprite_path

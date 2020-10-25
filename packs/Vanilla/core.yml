@@ -17,3 +17,7 @@ excludes:
   - ammo-icon-red.png
   - fuel-icon-red.png
   - electricity-icon-red.png
+
+copy_files:
+  __core__/graphics/background-image.jpg: background-image.jpg
+

@@ -42,10 +42,7 @@ excludes:
   - personal-cannon-defense
   - inserter
   - transport-belt
-  - graphics/icons/heat-exchanger
-  - graphics/icons/adv-fuel-cell-reprocessing
-  - graphics/icons/used-up-adv-fuel-cell
-  - graphics/icons/adv-fuel-cell
+  - graphics/icons/adv-fuel-cell-*-reprocessing
   - graphics/icons/antimatter-nuke
   - graphics/icons/sniper-rifle
   - graphics/icons/railgun-rifle
@@ -53,12 +50,18 @@ excludes:
   - graphics/icons/assault-rifle
   - graphics/icons/assault-ammo
 
+
 replaces:
   "-mk3": ""
   
   "assembling-machine": "assembling-machine-3"
 
+  # Why factorio???
+  "graphics/icons/heat-exchanger": "graphics/icons/heat-boiler"
+
+  # Inconsinays with Zombies Extended naming
   "adv-reactor": "nuclear-reactor"
+  "adv-fuel-cell": "uranium-fuel-cell"
   "medium-power-pole": "medium-electric-pole"
   "large-power-pole": "big-electric-pole"
   "chest": "steel-chest"

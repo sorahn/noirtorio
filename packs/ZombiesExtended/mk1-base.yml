@@ -43,10 +43,7 @@ excludes:
   - inserter
   - belt
   - splitter
-  - graphics/icons/heat-exchanger
-  - graphics/icons/adv-fuel-cell-reprocessing
-  - graphics/icons/used-up-adv-fuel-cell
-  - graphics/icons/adv-fuel-cell
+  - graphics/icons/adv-fuel-cell-*-reprocessing
   - graphics/icons/antimatter-nuke
   - graphics/icons/sniper-rifle
   - graphics/icons/railgun-rifle
@@ -64,7 +61,11 @@ replaces:
   "assembling-machine-1/assembling-machine-1-pipe": "assembling-machine-2/assembling-machine-2-pipe"
   "assembling-machine-1/hr-assembling-machine-1-pipe": "assembling-machine-2/hr-assembling-machine-2-pipe"
 
+  # Why factorio???
+  "graphics/icons/heat-exchanger": "graphics/icons/heat-boiler"
+
   "adv-reactor": "nuclear-reactor"
+  "adv-fuel-cell": "uranium-fuel-cell"
   "medium-power-pole": "medium-electric-pole"
   "large-power-pole": "big-electric-pole"
   "chest": "steel-chest"
