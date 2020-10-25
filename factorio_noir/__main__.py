@@ -365,6 +365,10 @@ def gen_pack_files(
 
     else:
         for mod_name in sorted(used_mods):
+            if mod_name in VANILLA_MODS and not is_vanilla:
+                click.secho(f"Ignoring files from mod {mod_name}:")
+                continue
+
             click.secho(f"Files from mod {mod_name}:")
             for f in sorted(
                 open_mod_read(mod_name, source_dirs).files(Path("**/*.png"))

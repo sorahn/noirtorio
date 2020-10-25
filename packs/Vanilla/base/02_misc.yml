@@ -10,4 +10,4 @@ base:
     icons:
 
 excludes:
-  - fluid
+  - /fluid/

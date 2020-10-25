@@ -1,0 +1,21 @@
+treatment:
+  brightness: 70%
+  saturation: 5%
+
+zombiesextended-power:
+  graphics:
+    icons:
+      - adv-fuel-cell-*-reprocessing
+
+zombiesextended-weapons:
+  graphics:
+    icons:
+      - assault-ammo
+      - sniper-ammo
+
+includes:
+  - mk3
+
+excludes:
+  - mask
+

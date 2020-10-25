@@ -1,6 +1,6 @@
 treatment:
   brightness: 70%
-  saturation: 30%
+  saturation: 25%
 
 zombiesextended-equipment:
   graphics:
@@ -10,6 +10,22 @@ zombiesextended-equipment:
     icons:
       - microverse-battery
       - personal-cannon-defense
+
+zombiesextended-power:
+  graphics:
+    icons:
+      - adv-fuel-cell-*-reprocessing
+
+zombiesextended-weapons:
+  graphics:
+    icons:
+      - antimatter-nuke
+      - assault-rifle
+      - railgun-rifle
+      - sniper-rifle
+      - assault-ammo
+      - sniper-ammo
+
 
 includes:
   - mk1

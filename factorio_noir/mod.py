@@ -146,8 +146,8 @@ def find_mod(mod_name: str, source_dirs: List[Path]) -> Path:
             else:
                 f_name, f_version = file_name.split("_", 1)
 
-                if "." in f_version:
-                    f_version, _ = f_version.split(".", 1)
+                if file_name.endswith(".zip"):
+                    f_version = f_version[: -len(".zip")]
 
                 if f_name != mod_name:
                     continue
@@ -160,8 +160,8 @@ def find_mod(mod_name: str, source_dirs: List[Path]) -> Path:
                     found_mod_path = mod_root / f
                     found_mod_version = f_version_split
 
-            if found_mod_path != None:
-                return found_mod_path
+        if found_mod_path != None:
+            return found_mod_path  # type: ignore
 
     raise Exception(f"Failed to find code for mod: {mod_name}")
 
