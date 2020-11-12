@@ -4,9 +4,9 @@ local function desaturate(c, bri, sat)
 	end
 
 	-- colors can be either named, on indexed
-	r = c.r or c[1]
-	g = c.g or c[2]
-	b = c.b or c[3]
+	r = c.r or c[1] or 0
+	g = c.g or c[2] or 0
+	b = c.b or c[3] or 0
 	a = c.a or c[4]
 
 	-- They can also be valued [0-1] or [0-255]
