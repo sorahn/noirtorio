@@ -1,0 +1,32 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+alien-biomes:
+  graphics:
+    decorative:
+    terrain:
+    entity:
+
+alien-biomes-hr-terrain:
+  graphics:
+    decorative:
+    terrain:
+    entity:
+
+
+excludes:
+  - mask
+  - hazard
+  - shadow
+  - water-transitions
+  - water-green
+  - out-of-map-transition
+  - water-noise
+  - snow
+  - lava
+  - volcanic
+  - bush
+  - vegetation
+  - tree
+
