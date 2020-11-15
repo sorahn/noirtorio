@@ -1,0 +1,16 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+deadlock-beltboxes-loaders:
+  graphics:
+
+excludes:
+  - mask
+  - hazard
+  - shadow
+  - glow
+  - water-transitions
+  - water-green
+  - out-of-map-transition
+  - water-noise

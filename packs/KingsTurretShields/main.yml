@@ -1,0 +1,18 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+KingsTurret-Shields:
+  graphics:
+
+
+excludes:
+  - mask
+  - hazard
+  - shadow
+  - glow
+  - water-transitions
+  - water-green
+  - out-of-map-transition
+  - water-noise
+

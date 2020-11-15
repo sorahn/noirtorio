@@ -1,0 +1,22 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+# core TSM mod
+train-pubsub:
+  graphics:
+
+TSM-outpost-builder:
+  graphics:
+
+
+excludes:
+  - mask
+  - hazard
+  - shadow
+  - glow
+  - water-transitions
+  - water-green
+  - out-of-map-transition
+  - water-noise
+

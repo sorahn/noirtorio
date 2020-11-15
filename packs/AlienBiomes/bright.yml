@@ -26,8 +26,8 @@ excludes:
 
 includes:
   - snow
-  - lava
-  - volcanic
+#  - lava
+#  - volcanic
   - bush
   - vegetation
   - tree

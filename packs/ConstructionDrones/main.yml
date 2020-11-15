@@ -1,0 +1,21 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+Construction_Drones:
+  data:
+    entities:
+    units:
+
+
+excludes:
+  - mask
+  - hazard
+  - shadow
+  - glow
+  - beam
+  - water-transitions
+  - water-green
+  - out-of-map-transition
+  - water-noise
+

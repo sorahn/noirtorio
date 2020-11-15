@@ -1,0 +1,14 @@
+treatment:
+  brightness: 50%
+  saturation: 20%
+
+zombiesextended-core:
+  graphics:
+    icons:
+
+includes:
+  - plutonium
+
+excludes:
+  - mask
+  - shadow
