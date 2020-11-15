@@ -71,7 +71,7 @@ class Mod:
 
                 self.all_files.add(f[len(self.file_prefix) :])
 
-        self.name = full_mod_name.split("_")[0]
+        self.name = mod_name
 
     def files(self, filter: Path) -> Iterable[str]:
         for f in self.all_files:
@@ -136,15 +136,13 @@ def find_mod(mod_name: str, source_dirs: List[Path]) -> Path:
             elif file_name == mod_name + ".zip":
                 return mod_root / f
 
-            elif "_" in mod_name:
-                # Direct match only
-                continue
-
             elif "_" not in file_name:
                 continue
 
             else:
-                f_name, f_version = file_name.split("_", 1)
+                file_name_s = file_name.split("_")
+                f_name = '_'.join(file_name_s[:-1])
+                f_version = file_name_s[-1]
 
                 if file_name.endswith(".zip"):
                     f_version = f_version[: -len(".zip")]
@@ -163,7 +161,7 @@ def find_mod(mod_name: str, source_dirs: List[Path]) -> Path:
         if found_mod_path != None:
             return found_mod_path  # type: ignore
 
-    raise Exception(f"Failed to find code for mod: {mod_name}")
+    raise Exception(f"Could not find mod: {mod_name}. Has it been installed?")
 
 
 global_mod_cache: Dict[str, Mod] = {}

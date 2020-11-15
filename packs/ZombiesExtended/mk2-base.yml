@@ -48,6 +48,7 @@ excludes:
   - inserter
   - belt
   - splitter
+  - loader
   - graphics/icons/adv-fuel-cell-*-reprocessing
   - graphics/icons/antimatter-nuke
   - graphics/icons/sniper-rifle

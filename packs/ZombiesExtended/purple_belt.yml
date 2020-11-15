@@ -11,6 +11,7 @@ zombiesextended-logistics:
     icons:
       - belt
       - splitter
+      - loader
 
 includes:
   - mk2
