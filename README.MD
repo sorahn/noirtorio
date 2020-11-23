@@ -1,4 +1,4 @@
-# Factorio Noir
+# Noirtorio
 
 ## Requirements
 
