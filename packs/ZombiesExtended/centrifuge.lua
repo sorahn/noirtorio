@@ -1,10 +1,14 @@
 
 local function swap_entity_light(entity, find, replace)
-	for _, layer in pairs(entity.animation.layers) do
-		-- we don't change the mod here cause we have already done that
-		-- for the base centrifuge
-		layer.filename = layer.filename:gsub(find, replace)
-                layer.hr_version.filename = layer.hr_version.filename:gsub(find, replace)
+	for _, working_visualisation in pairs(entity.working_visualisations) do
+		if working_visualisation.animation then
+			for _, layer in pairs(working_visualisation.animation.layers) do
+				-- we don't change the image mod here cause we have already done that
+				-- for the base centrifuge
+				layer.filename = layer.filename:gsub(find, replace)
+				layer.hr_version.filename = layer.hr_version.filename:gsub(find, replace)
+			end
+		end
 	end
 end
 

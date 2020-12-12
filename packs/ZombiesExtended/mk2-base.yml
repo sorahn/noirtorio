@@ -53,6 +53,7 @@ excludes:
   - graphics/icons/antimatter-nuke
   - graphics/icons/sniper-rifle
   - graphics/icons/railgun-rifle
+  - graphics/icons/railgun-ammo
   - graphics/icons/sniper-ammo
   - graphics/icons/assault-rifle
   - graphics/icons/assault-ammo
