@@ -19,6 +19,7 @@ def process_sprite(
     lazy_match_size_file: Optional[LazyFile],
     target_file_path: Path,
     treatment: SpriteTreatment,
+    bright: bool,
 ) -> None:
     """Process a sprite"""
 
@@ -35,6 +36,7 @@ def process_sprite(
         processed_sprite = apply_transforms(
             sprite,
             treatment,
+            bright,
             new_size,
         )
         processed_sprite.save(target_file_path)
@@ -177,14 +179,27 @@ class ColorSpace:
 
 
 def apply_transforms(
-    image: Image, treatment: SpriteTreatment, new_size: Optional[Tuple[float, float]]
+    image: Image,
+    treatment: SpriteTreatment,
+    bright: bool,
+    new_size: Optional[Tuple[float, float]],
 ) -> Image:
     """Apply the needed transformations to the given image."""
     img_alpha = image.getchannel("A")
     img_rgb = image.convert("RGB")
 
+    sat = treatment.saturation
+    bri = treatment.brightness
+
+    if bright:
+        if sat <= 0.9:
+            sat += 0.1
+
+        if bri <= 0.9:
+            bri += 0.1
+
     transformation_matrix = ColorSpace(*treatment.color_space).matrix(
-        treatment.saturation, treatment.brightness, treatment.hue
+        sat, bri, treatment.hue
     )
 
     img_converted = img_rgb.convert("RGB", transformation_matrix)

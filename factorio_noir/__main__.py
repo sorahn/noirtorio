@@ -58,13 +58,16 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 @click.command()
 @click.option("--pack-version", default="0.0.1")
 @click.option("--dev", is_flag=True, envvar="DEV")
-@click.option("--dry-run", is_flag=True)
+@click.option(
+    "--dry-run", is_flag=True, help="Print out which assets are being modified"
+)
+@click.option("--bright", is_flag=True, help="Add 10 points to all sat/bri values")
 @click.option(
     "--factorio-data",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
-    help="Factorio install directory, needed only if packaging Vanilla pack.\n"
+    help="Factorio install directory, needed only if packaging Vanilla pack.\n"  # type: ignore
     f"Default: {DEFAULT_FACTORIO_DIR}",
-    envvar="FACTORIO_DATA",  # type: ignore
+    envvar="FACTORIO_DATA",
     default=DEFAULT_FACTORIO_DIR,
 )
 @click.option(
@@ -84,6 +87,8 @@ DEFAULT_MODS_DIR = find_default_dir(DEFAULT_MODS_DIRS)
 @click.argument(
     "pack-dirs",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, readable=True),
+    required=False,
+    # help="Which packs to load. If missing will process all packs/",
     nargs=-1,
 )
 @click.pass_context
@@ -92,14 +97,15 @@ def cli(
     pack_dirs: List[Path],
     dev: bool,
     dry_run: bool,
+    bright: bool,
     pack_version: str,
     factorio_data: Optional[Path],
     factorio_mods: Optional[Path],
     target: Optional[Path],
 ):
     if len(pack_dirs) == 0:
-        click.secho("At least one path to a pack is needed", fg="red")
-        raise click.Abort()
+        click.secho("Processing all packs!")
+        pack_dirs = sorted((MOD_ROOT / "packs").iterdir())
 
     if len(pack_dirs) > 1:
         for p in pack_dirs:
@@ -107,6 +113,8 @@ def cli(
                 cli,
                 pack_dirs=[p],
                 dev=dev,
+                dry_run=dry_run,
+                bright=bright,
                 pack_version=pack_version,
                 factorio_data=factorio_data,
                 factorio_mods=factorio_mods,
@@ -140,6 +148,9 @@ def cli(
 
     if dry_run:
         click.secho("Doing a dry run. No files will be modified")
+
+    if bright:
+        click.secho("Increasing the brightness/saturation a little")
 
     if factorio_data is not None:
         factorio_data = Path(factorio_data)
@@ -203,6 +214,7 @@ def cli(
         pack_version,
         is_vanilla,
         dry_run,
+        bright,
     )
 
     if dev is True:
@@ -237,6 +249,7 @@ def gen_pack_files(
     pack_version: str,
     is_vanilla: bool,
     dry_run: bool,
+    bright: bool,
 ) -> None:
     """Generate a Factorio-Noir package from pack directory."""
     click.echo(f"Loading categories for pack: {pack_dir}")
@@ -323,6 +336,7 @@ def gen_pack_files(
                             lazy_match_size_file=lazy_match_size_file,
                             target_file_path=target_dir / "data" / lua_path,
                             treatment=category.treatment,
+                            bright=bright,
                         )
 
                 for lua_path, file_path in category.copy_files.items():
