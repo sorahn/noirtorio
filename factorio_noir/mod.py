@@ -141,7 +141,7 @@ def find_mod(mod_name: str, source_dirs: List[Path]) -> Path:
 
             else:
                 file_name_s = file_name.split("_")
-                f_name = '_'.join(file_name_s[:-1])
+                f_name = "_".join(file_name_s[:-1])
                 f_version = file_name_s[-1]
 
                 if file_name.endswith(".zip"):
