@@ -1,0 +1,18 @@
+treatment:
+  brightness: 50%
+  saturation: 60%
+
+Companion_Drones:
+  - drone-icon
+
+excludes:
+  - mask
+  - hazard
+  - shadow
+  - glow
+  - beam
+  - water-transitions
+  - water-green
+  - out-of-map-transition
+  - water-noise
+
