@@ -10,6 +10,11 @@ base:
       stone:
       coal:
       uranium-ore:
+    particle:
+      coal-particle:
+      copper-ore-particle:
+      iron-ore-particle:
+      stone-particle:
 
 
 excludes:
