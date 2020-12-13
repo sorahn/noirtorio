@@ -90,4 +90,8 @@ desaturate_table(data.raw["utility-constants"].default.chart, 0.7, 0.1, "_color"
 desaturate_table(data.raw["utility-constants"].default.chart.default_color_by_type, 0.7, 0.1)
 desaturate_table(data.raw["utility-constants"].default.chart.default_friendly_color_by_type, 0.7, 0.1)
 
+-- The entire screen flashes this colour on damage being taken
+data.raw["character"]["character"]["damage_hit_tint"] = desaturate(data.raw["character"]["character"]["damage_hit_tint"], 0.5, 0.6)
+
+
 
